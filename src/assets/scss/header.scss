@@ -1,0 +1,84 @@
+@import './variables.scss';
+.header-holder {
+    .header {
+      padding: 3px 80px;
+      background: rgba(255, 255, 255, 0.8);
+  
+      @media (max-width:767px) {
+        padding: 10px 15px;
+        margin-top: 0px;
+      }
+  
+      .breadcrumb {
+        background-color: transparent !important;
+        margin-bottom: 0;
+  
+        @media (max-width:767px) {
+          padding: 0;
+        }
+  
+        .breadcrumb-item {
+          color: #001663 !important;
+          font-size: 16px;
+          font-weight: 600;
+          margin-left: -28px;
+  
+          @media (min-width:767px) {
+            &::before {
+              content: ">";
+              margin-right: 15px;
+            }
+          }
+  
+          @media (max-width:991px) {
+            margin-left: 0;
+          }
+        }
+      }
+  
+      .navbar-brand {
+        margin-right: 64px;
+        @media (max-width:767px){
+          margin-right: 40px;
+        }
+        img {
+          height: 64px;
+          @media (max-width:575px) {
+            height: 45px;
+          }
+        }
+      }
+  
+    }
+  
+    .profile {
+      .profile-holder {
+        width: 50px;
+        height: 50px;
+        background-color: #001663;
+        color: #fff;
+        border-radius: 100%;
+      }
+  
+    }
+  
+    .fullname {
+      font-size: 16px;
+      font-weight: 600;
+      color: #171d63;
+    }
+  }
+
+
+.mat-menu-item {
+    line-height: 32px !important;
+    height: 32px !important;
+  
+    &:hover {
+      background: transparent;
+    }
+  }
+
+ ::ng-deep .mat-menu-panel {
+  min-height: 48px !important;
+ } 

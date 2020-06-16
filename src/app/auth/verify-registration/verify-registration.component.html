@@ -1,0 +1,164 @@
+<div class="banner-holder">
+    <!-- <div class="banner">
+        <img class="d-none d-lg-block" src="../../../assets/images/banner.svg" alt="">
+        <img class="d-block d-lg-none" src="../../../assets/images/banner-mobi.jpg" alt="">
+    </div> -->
+
+    <div class="container-fluid px-0">
+        <div class="header-holder">
+            <nav class="navbar header navbar-light d-none d-lg-block">
+                <div class="d-flex align-items-center">
+                    <a class="navbar-brand" href="#"><img src="assets/images/logo.svg" alt=""></a>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item active" aria-current="page">Registration</li>
+                        </ol>
+                    </nav>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+
+    <div class="registration-holder">
+        <div class="container-fluid">
+            <div class="row">
+
+                <div class="col-sm-12 col-md-12 col-lg-4 col-xl-5 col-12">
+                    <!-- <div class="register_left_side_img">
+                            <img src="assets/images/registration.svg" class="img-fluid" alt="">
+                        </div> -->
+
+                </div>
+                <div class="col-sm-12 col-md-12 offset-lg-3 col-lg-5 offset-xl-3 col-xl-4 col-12">
+                    <div class="register_right_side">
+                        <a class="navbar-brand d-lg-none d-block" href="#"><img src="assets/images/logo.svg" alt=""></a>
+                        <h2 *ngIf="type == 'reg'">Registration Desk</h2>
+                        <h2 *ngIf="type == 'login'">Login</h2>
+                        <div class="stepper">
+                            <div class="stepper-icons-section auth-icons">
+                                <div class="stepper-info">
+                                    <div class="stepper-people stepper-active"> <i class="fa fa-user">
+                                        </i>
+                                    </div>
+                                    <p class="basic active">Basic Info</p>
+                                </div>
+
+                                <div class="stepper-arrow">
+                                    <p>_____________</p>
+                                </div>
+                                <div class="stepper-info">
+                                    <div class="stepper-correct"> <i class="fa fa-check"></i></div>
+                                    <p class="verification">Verification</p>
+                                </div>
+
+                            </div>
+                        </div>
+
+
+                        <section class="otp-holder">
+                            <ng-container *ngIf="!bothAreVerified">
+                                <ng-container *ngIf="!fadeOTPmessage">
+                                    <h6 *ngIf="!VerifyOTP">Mobile Number</h6>
+                                    <p class="otp-title" *ngIf="!VerifyOTP && !otpError">Please enter the OTP sent to
+                                        your registered mobile
+                                        number</p>
+                                    <p class="otp-title errorMessage" *ngIf="!VerifyOTP && otpError">The OTP entered is
+                                        incorrect, please try again.</p>
+                                    <div class="d-flex justify-content-center">
+                                        <ng-container *ngIf="!VerifyOTP">
+                                            <div>
+                                                <otp [setting]="settings" (onValueChange)="onInputChange($event)"></otp>
+                                            </div>
+                                            <div>
+                                                <button class="btn verify-btn" *ngIf="type == 'reg'"
+                                                    (click)="onVerifyOtp()">Verify</button>
+                                            </div>
+
+                                        </ng-container>
+                                        <p *ngIf="VerifyOTP" class="verifySuccess">Your number is verified and
+                                            registered
+                                            successfully!</p>
+                                    </div>
+                                </ng-container>
+                                <ng-container *ngIf="!fadeEmailmessage">
+                                    <div class="verify-email" *ngIf="type == 'reg'">
+                                        <h6>Email Address</h6>
+                                        <p *ngIf="!VerifyEmail">A verification link has been shared. Please click on the
+                                            link to validate your email address & complete your registration.</p>
+                                        <p *ngIf="VerifyEmail" class="verifySuccess">Your email address is successfully
+                                            verified!
+                                        </p>
+                                    </div>
+                                </ng-container>
+                            </ng-container>
+                            <ng-container *ngIf="bothAreVerified">
+                                <p class="verifySuccess">Your mobile number and email address are successfully verified!
+                                </p>
+                            </ng-container>
+                            <div class="buttons-holder d-flex justify-content-center">
+                                <button class="btn button-outline d-block"
+                                    (click)="navigateToback()" >Back</button>
+                                <button *ngIf="type == 'login'" class="btn button-primary"
+                                    (click)="onLogin()">Login</button>
+
+                                <button type="button" *ngIf="type == 'reg'" class="btn button-primary"
+                                    (click)="onSubmit()" [ngClass]="disabledClass()">Register</button>
+                            </div>
+
+                        </section>
+                        <p class="footer-text" *ngIf="type == 'reg'">Already Registered?<span class="ml-2"
+                                (click)="navigatetologin()">Login</span></p>
+                        <p class="footer-text" *ngIf="type == 'login'">New User?<span class="ml-2"
+                                (click)="navigatetoregister()">Register here</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- footer section -->
+
+        <section class="footer-holder">
+            <div class="container-fluid px-0">
+                <div class="footer d-md-flex d-block justify-content-md-between align-items-md-center">
+                    <div class="logo-icon">
+                        <img src="../../assets/images/events-page/logo.svg" alt="">
+                    </div>
+                    <a class="footer-logo" href="https://weevirtuall.com/" target="_blank">
+                        <div class="powered-by d-flex align-items-center">
+                            <p class="mb-0 mr-2">Powered by</p>
+                            <img src="../../assets/images/events-page/footer-logo.svg" alt="">
+                        </div>
+                    </a>
+                    <div class="contact-details">
+                        <div class="info d-flex">
+                            <img src="../../assets/images/events-page/mail.svg" alt="">
+                            <a href="mailto:hello@weevirtuall.com">hello@weevirtuall.com</a>
+                        </div>
+                        <div class="info d-flex">
+                            <img src="../../assets/images/events-page/phone.svg" alt="">
+                            <a href="tel:+91 9769340402">+91 9769340402</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="modal fade" id="RegisterModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="modal-body">
+                    <p>You are successfully registered for the event.The meeting link has been sent to your email
+                        address.
+                    </p>
+                    <button class="btn btn-secondary" data-dismiss="modal" (click)="navigatetolounge()">Okay</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

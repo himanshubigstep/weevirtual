@@ -1,0 +1,123 @@
+
+<div class="banner-holder">
+    <!-- <div class="banner">
+        <img class="d-none d-lg-block" src="../../../assets/images/banner.svg" alt="">
+        <img class="d-block d-lg-none" src="../../../assets/images/banner-mobi.jpg" alt="">
+    </div> -->
+    
+    <div class="registration-holder login-form">
+        
+        <div class="container-fluid px-0">
+            <div class="header-holder">
+                <nav class="navbar header navbar-light d-none d-lg-block">
+                    <div class="d-flex align-items-center">
+                        <a class="navbar-brand" href="#"><img src="assets/images/logo.svg" alt=""></a>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item active" aria-current="page">Login</li>
+                            </ol>
+                        </nav>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <div class="container-fluid">
+            <div class="row">
+                
+                <div class="col-sm-12 col-md-12 col-lg-4 col-xl-5 col-12">
+                    <!-- <div class="register_left_side_img">
+                          <img src="assets/images/registration.svg" class="img-fluid" alt="">
+                      </div> -->
+
+                </div>
+                <div class="col-sm-12 col-md-12 offset-lg-3 col-lg-5 offset-xl-3 col-xl-4 col-12">
+                    <div class="register_right_side login-holder">
+                        <a class="navbar-brand d-lg-none d-block" href="#"><img src="assets/images/logo.svg" alt=""></a>
+                        <h2>Login</h2>
+                        <div class="stepper">
+                            <div class="stepper-icons-section">
+                                <div class="stepper-info">
+                                    <div class="stepper-people stepper-active"> <i class="fa fa-user">
+                                        </i>
+                                    </div>
+                                    <p class="basic active">Basic Info</p>
+                                </div>
+
+                                <div class="stepper-arrow">
+                                    <p>_____________</p>
+                                </div>
+                                <div class="stepper-info">
+                                    <div class="stepper-correct"> <i class="fa fa-check"></i></div>
+                                    <p class="verification">Verification</p>
+                                </div>
+
+                            </div>
+
+                            <!-- <div class="input-box">
+                                <input type="text" class="form-control" formControlName="number" id="number" autocomplete="off">
+                                <label for="number">Mobile Number</label>
+                            </div> -->
+
+                        </div>
+
+                        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" *ngIf="!tokenStatus">
+                            <div class="input-holder">
+                                <p *ngIf="errorStatus" class="errorMessage">This mobile number is not registered</p>
+                                <p>Please enter your registered mobile number</p>
+                                <div class="form-group has-float-label">
+                                    <input type="text" appNumberOnly class="form-control" formControlName="number" id="number"
+                                        placeholder="Mobile Number">
+                                    <label for="email">Mobile Number</label>
+                                </div>
+                                <div *ngIf="submitted && loginform.number.errors" class="form-errors">
+                                    <p *ngIf="loginform.number.errors.required"> Please enter number</p>
+                                    <p *ngIf="loginform.number.errors.pattern"> Please enter valid number</p>
+                                </div>
+                            </div>
+                           <div class="buttons-holder d-flex justify-content-center">
+                                <a class="btn button-outline d-block d-lg-none" routerLink="/home">Back</a>
+                                <button type="submit" class="btn register_btn" [disabled]="clickOnContinue">Continue</button>
+                           </div>
+                            <p class="footer-text">Not a registered user? <span (click)="navigatetoregister()"
+                                    class="ml-2">
+                                    Register
+                                    here</span></p>
+                        </form>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- footer section -->
+
+        <section class="footer-holder">
+            <div class="container-fluid px-0">
+                <div class="footer d-md-flex d-block justify-content-md-between align-items-md-center">
+                    <div class="logo-icon">
+                        <img src="../../assets/images/events-page/logo.svg" alt="">
+                    </div>
+                    <a class="footer-logo" href="https://weevirtuall.com/" target="_blank">
+                        <div class="powered-by d-flex align-items-center">
+                            <p class="mb-0 mr-2">Powered by</p>
+                            <img src="../../assets/images/events-page/footer-logo.svg" alt="">
+                        </div>
+                    </a>
+                    <div class="contact-details">
+                        <div class="info d-flex">
+                            <img src="../../assets/images/events-page/mail.svg" alt="">
+                            <a href="mailto:hello@weevirtuall.com">hello@weevirtuall.com</a>
+                        </div>
+                        <div class="info d-flex">
+                            <img src="../../assets/images/events-page/phone.svg" alt="">
+                            <a href="tel:+91 9769340402">+91 9769340402</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+    
+</div>

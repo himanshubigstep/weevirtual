@@ -1,0 +1,21 @@
+@import "../meeting-hall/meeting-hall.component.scss";
+
+.questions-zone {
+    @media (max-width:767px){
+        background: url(../../../assets/images/events-page/mobi-bg.jpg);
+        background-size: cover;
+        background-repeat: no-repeat;
+    }
+    .question {
+        margin: -16px 0px;
+        padding: 20px 25px;
+        background-color: rgba(255, 255, 255, 0.85);  
+        position: fixed;
+        top: 16px;
+        right: 0;
+        left: 0;
+        z-index: 999;
+        color: #001663;
+        font-weight: 600;
+    }
+}

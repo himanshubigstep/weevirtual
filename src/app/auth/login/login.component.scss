@@ -1,0 +1,98 @@
+@import '../../../assets/scss/auth.scss';
+@import '../../../assets/scss/footer.scss';
+
+.login-form {
+  .login-holder {
+    .input-holder {
+      margin: 85px 0px 67px;
+
+      p {
+        color: #6E6C6F;
+        font-size: 14px;
+        font-weight: 400;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+    }
+
+    .footer-text {
+      margin: 49px 0px 28px;
+    }
+    .button-outline {
+      color: #E04141;
+      font-size: 16px;
+      font-weight: 400;
+      border: 1px solid;
+      width: 120px;
+      height: 40px;
+      margin-right: 17px !important;
+      margin-top: 14px;
+    }
+  }
+ .register_right_side {
+    padding: 38px 51px 40px;
+    @media (max-width:767px){
+      padding: 45px 30px 30px;
+    }
+ }  
+  .footer-holder {
+    margin-top: 53px;
+  }
+}
+
+/* */
+.input-box {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+input{
+  background: none;
+  padding: 15px 40px;
+  font-size: 14px;
+  color: #CBC9C9;
+  width: 100%;
+}
+
+input:active,
+input:focus{
+  outline: none;
+}
+
+input[type=text] {
+  padding: 10px;
+  border: none;
+  border: 1px solid #CBC9C9;
+  border-radius: 4px;
+  height: 43px;
+}
+
+label {
+  position: absolute;
+  left: 11px;
+  top: 11px;
+  color: #9B999C;
+  font-size: 14px;
+  pointer-events: none;
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+}
+
+input[type=text]:focus + label{
+  top: -10px;
+  color: #9B999C;
+  font-size: 14px;
+  background: #fff;
+}
+.errorMessage{
+  color: rgb(219, 28, 28) !important;
+}
+
+
+.form-errors p {
+  color: rgb(219, 28, 28) !important;
+  float: left;
+    margin-bottom: 0px;
+    font-size: 14px;
+    font-weight: 400;
+}

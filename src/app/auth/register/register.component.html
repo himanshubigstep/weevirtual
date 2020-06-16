@@ -1,0 +1,187 @@
+<div class="banner-holder">
+        <!-- <div class="banner">
+            <img class="d-none d-lg-block" src="../../../assets/images/banner.svg" alt="">
+            <img class="d-block d-lg-none" src="../../../assets/images/banner-mobi.jpg" alt="">
+        </div> -->
+    
+        <div class="container-fluid px-0">
+            <div class="header-holder">
+                <nav class="navbar header navbar-light d-none d-lg-block">
+                    <div class="d-flex align-items-center">
+                        <a class="navbar-brand" href="#"><img src="assets/images/logo.svg" alt=""></a>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item active" aria-current="page">Registration</li>
+                            </ol>
+                        </nav>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    
+        <div class="registration-holder">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-4 col-xl-5 col-12">
+                        <!-- <div class="register_left_side_img">
+                            <img src="assets/images/registration.svg" class="img-fluid" alt="">
+                        </div> -->
+    
+                    </div>
+                    <div class="col-sm-12 col-md-12 offset-lg-3 col-lg-5 offset-xl-3 col-xl-4 col-12">
+                        <div class="register_right_side login-holder">
+                            <a class="navbar-brand d-lg-none d-block" href="#"><img src="assets/images/logo.svg"
+                                    alt=""></a>
+                            <h2>Registration Desk</h2>
+                            <div class="stepper">
+                                <div class="stepper-icons-section">
+                                    <div class="stepper-info">
+                                        <div class="stepper-people stepper-active"> <i class="fa fa-user">
+                                            </i>
+                                        </div>
+                                        <p class="basic active">Basic Info</p>
+                                    </div>
+    
+                                    <div class="stepper-arrow">
+                                        <p>_____________</p>
+                                    </div>
+                                    <div class="stepper-info">
+                                        <div class="stepper-correct"> <i class="fa fa-check"></i></div>
+                                        <p class="verification">Verification</p>
+                                    </div>
+    
+                                </div>
+                            </div>
+                            <!-- <form [formGroup]="registerForm" (ngSubmit)="onContinue()">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" formControlName="name" placeholder="Name" />
+                                    <div *ngIf="submitted && regform.name.errors" class="form-errors">
+                                        <p *ngIf="regform.email.errors.required"> Please enter a your name</p>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" class="form-control" formControlName="email" placeholder="Email Id" />
+                                    <div *ngIf="submitted && regform.email.errors" class="form-errors">
+                                        <p *ngIf="regform.email.errors.required"> Please enter a your email id</p>
+                                        <p *ngIf="regform.email.errors.email"> Please enter a valid email id</p>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" class="form-control" formControlName="phoneNumber"
+                                        placeholder="Phone Number" />
+                                    <div *ngIf="submitted && regform.phoneNumber.errors" class="form-errors">
+                                        <p *ngIf="regform.phoneNumber.errors.required"> Please enter a valid phone number</p>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" class="form-control" formControlName="organization"
+                                        placeholder="Organization Associated" />
+                                    <div *ngIf="submitted && regform.organization.errors" class="form-errors">
+                                        <p *ngIf="regform.organization.errors.required"> Please enter the associated organization
+                                            name
+                                        </p>
+                                    </div>
+                                </div>
+            
+                                <button type="submit" class="btn register_btn">Continue</button>
+            
+                            </form> -->
+    
+                            <!-- new form -->
+                            <p class="errorMessage" *ngIf="registerationError">This mobile number or email id is already registered</p>
+                            <form [formGroup]="registerForm" (ngSubmit)="onContinue()">
+                                <div class="input-holder">
+                                    <div class="form-group has-float-label">
+                                        <input type="text" class="form-control" formControlName="name" id="fullname"
+                                            placeholder="Full Name">
+                                        <label for="fullname">Full Name</label>
+                                    </div>
+                                    <div *ngIf="submitted && regform.name.errors" class="form-errors">
+                                        <p *ngIf="regform.email.errors.required"> Please enter name</p>
+                                    </div>
+                                </div>
+                                <div class="input-holder contact-holder">
+                                        <div class="form-group has-float-label">
+                                            <input type="text" appNumberOnly class="form-control" id="Contact" formControlName="phoneNumber" maxlength="15"
+                                                placeholder="Mobile number">
+                                            <label for="Contact">Mobile number</label>
+                                        </div>
+                                        <div *ngIf="submitted && regform.phoneNumber.errors" class="form-errors">
+                                            <p *ngIf="regform.phoneNumber.errors.required"> Please enter mobile number</p>
+                                            <p *ngIf="regform.phoneNumber.errors.pattern"> Please enter valid number</p>
+                                        </div>
+                                    </div>
+                                <div class="input-holder">
+                                        <div class="form-group has-float-label">
+                                            <input type="email" class="form-control" formControlName="email" id="email"
+                                                placeholder="Email">
+                                            <label for="email">Email</label>
+                                        </div>
+                                        <div *ngIf="submitted && regform.email.errors" class="form-errors">
+                                            <p *ngIf="regform.email.errors.required"> Please enter email</p>
+                                            <p *ngIf="regform.email.errors.email || regform.email.errors.pattern"> Please enter valid email id</p>
+                                        </div>
+                                    </div>
+                                <div class="input-holder">
+                                    <div class="form-group has-float-label">
+                                        <input type="text" class="form-control" id="organisation" formControlName="organization"
+                                            placeholder="Organisation Associated ">
+                                        <label for="organisation">Organisation Associated </label>
+                                    </div>
+                                    <div *ngIf="submitted && regform.organization.errors" class="form-errors">
+                                        <p *ngIf="regform.organization.errors.required"> Please enter the associated
+                                            organization
+                                            name
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="input-holder">
+                                    <div class="form-group has-float-label">
+                                        <input type="text" class="form-control" id="Designation" formControlName="designation"
+                                            placeholder="Designation ">
+                                        <label for="Designation">Designation</label>
+                                    </div>
+                                    <div *ngIf="submitted && regform.organization.errors" class="form-errors">
+                                        <p *ngIf="regform.organization.errors.required"> Please enter the designation </p>
+                                    </div>
+                                </div>
+                                <div class="buttons-holder d-flex justify-content-center">
+                                        <a class="btn button-outline d-block d-lg-none" routerLink="/home">Back</a>
+                                        <button type="submit" class="btn register_btn" [disabled]="clickOnContinue">Continue</button>
+                                   </div>
+                            </form>
+                            <p class="footer-text">Already Registered?<span (click)="navigatetologin()"
+                                    class="ml-2">Login</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- footer section -->
+    
+        <section class="footer-holder">
+            <div class="container-fluid px-0">
+                <div class="footer d-md-flex d-block justify-content-md-between align-items-md-center">
+                    <div class="logo-icon">
+                        <img src="../../assets/images/events-page/logo.svg" alt="">
+                    </div>
+                    <a class="footer-logo" href="https://weevirtuall.com/" target="_blank">
+                        <div class="powered-by d-flex align-items-center">
+                            <p class="mb-0 mr-2">Powered by</p>
+                            <img src="../../assets/images/events-page/footer-logo.svg" alt="">
+                        </div>
+                    </a>
+                    <div class="contact-details">
+                        <div class="info d-flex">
+                            <img src="../../assets/images/events-page/mail.svg" alt="">
+                            <a href="mailto:hello@weevirtuall.com">hello@weevirtuall.com</a>
+                        </div>
+                        <div class="info d-flex">
+                            <img src="../../assets/images/events-page/phone.svg" alt="">
+                            <a href="tel:+91 9769340402">+91 9769340402</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>

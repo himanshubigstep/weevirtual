@@ -1,0 +1,187 @@
+<div class="container-fluid px-0">
+    <div class="header-holder">
+        <nav class="navbar header navbar-light">
+            <div class="d-flex align-items-center">
+                <a class="navbar-brand" href="#"><img src="assets/images/logo.svg" alt=""></a>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item active sponsor-logo" aria-current="page"><img
+                                src="../../assets/images/sponsors/Logos-05.svg" alt=""></li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="menu">
+                <button class="btn contact" (click)="scroll(contact)">Contact</button>
+                <button class="btn download" id="zoho-download-brochure" (click)="downloadPdf()">Download Brochure</button>
+            </div>
+        </nav>
+
+    </div>
+</div>
+
+<section class="banner-holder sponser-banner">
+    <div class="mb-5">
+        <div class="owl-carousel owl-theme">
+            <div class="item">
+                <img src="../../assets/images/sponsors/stall-banner.png" class="img-fluid" alt="">
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="intro-holder pb-5">
+    <div class="container-fluid">
+        <div class="row rpx-5">
+            <div class="col-md-5 d-flex align-items-center text-center">
+                <p>Zoho One gives you one suite of more than 40 integrated business and productivity applications for
+                    your entire
+                    organization. Simply turn on an app to improve a process. Then connect multiple apps so different
+                    teams can work
+                    together to delight customers, manage finances, and work productively</p>
+            </div>
+            <div class="col-md-7">
+                <div class="video_wrapper">
+                    <iframe frameborder="0" width="100%" height="100%" src="https://www.youtube.com/embed/2fX30s0fLsQ"
+                        allowfullscreen allow="autoplay">
+                    </iframe>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<section #contact class="contact-us pb-5">
+    <div class="custom-container py-5">
+        <div class="row px-5 flex-row-reverse">
+
+            <!--  Contact Form  -->
+            <div class="col-md-6 px-4">
+
+                <div class="d-flex justify-content-center">
+                    <img src="../../../../assets/images/sponsors/Logos-05.svg" class="mb-3 hide-in-desktop" alt="">
+                </div>
+                <h2 class="text-center mb-3">Enquiry Form</h2>
+
+                <form [formGroup]="contactForm" (ngSubmit)="onSubmit()">
+                    <div class="form-row">
+                        <div class="col-md-12">
+
+                            <div class="form-group">
+                                <!-- Full Name -->
+                                <div class="controls">
+                                    <input type="text" id="username" placeholder="Full Name" class="form-control"
+                                        formControlName="name" autocomplete="off" required>
+                                </div>
+                            </div>
+
+                            <!-- Email Address -->
+                            <div class="form-group">
+                                <div class="controls">
+                                    <input type="text" id="email" placeholder="Email Address" class="form-control"
+                                        formControlName="email" autocomplete="off" required>
+                                </div>
+                            </div>
+
+                            <!-- Contact number -->
+                            <div class="form-group">
+                                <div class="controls">
+                                    <input type="text" appNumberOnly (keypress)="isKeyValid($event)" id="phone" placeholder="Contact number" class="form-control"
+                                        formControlName="mobile" autocomplete="off" min="1" required>
+                                </div>
+                            </div>
+
+                            <!-- Intrests -->
+                            <div class="form-group">
+                                <div class="controls select-dropdown">
+                                    <i class="fa fa-caret-down" aria-hidden="true"></i>
+                                    <select id="intrests" formControlName="intrests" class="form-control" required>
+                                        <option value="" selected disabled>What are you intrested in?</option>
+                                        <option *ngFor="let intrest of intrests" [ngValue]="intrest">{{intrest}}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!--  Send button  -->
+                            <div class="form-group">
+                                <button [disabled]="contactForm.invalid" class="btn btn-primary send" type="submit"
+                                    data-toggle="modal" data-target="#exampleModal">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+
+            <!--  Contact details  -->
+            <div class="col-md-6 text-center">
+                <div>
+                    <div class="d-flex justify-content-center">
+                        <img src="../../../../assets/images/sponsors/Logos-05.svg" style="width: 156px;" class="mb-3 hide-in-mobile" alt="">
+                    </div>
+                    <div class="contact-details">
+                        <div class="text-left">
+                            <span><i class="fa fa-user-o" aria-hidden="true"></i> Kritika Bhansali</span>
+                            <a href="mailto:Kritikabhansali@zoho.com"><i class="fa fa-envelope-o"
+                                    aria-hidden="true"></i>
+                                Kritikabhansali@zoho.com</a>
+                            <a href="tel:+91 9736462136"><i class="fa fa-phone" aria-hidden="true"></i> +91
+                                9736462136</a>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+</section>
+
+<div class="container">
+    <div class="row pt-3 pb-5">
+        <!--  Go to meeting  -->
+        <div class="col-md-12">
+            <div class="d-flex justify-content-center">
+                <button type="button" class="btn btn-outline-danger" (click)="navigatetoLounge()">Go back to
+                    meeting</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- footer section -->
+<section class="footer-holder">
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between">
+            <img src="../../assets/images/events-page/logo.svg" class="footer-logo-left" alt="">
+            <div class="powered-by d-flex align-items-center">
+                <a href="https://weevirtuall.com/" target="_blank">
+                    <span class="mb-0 mr-2">Powered by</span>
+                    <img src="../../assets/images/events-page/footer-logo.svg" class="footer-logo-right" alt="">
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                Your enquiry has been sent
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">okay</button>
+
+            </div>
+        </div>
+    </div>
+</div>

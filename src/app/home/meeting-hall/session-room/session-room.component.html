@@ -1,0 +1,625 @@
+<div class="page-container">
+  <!-- ***** header section starts ***** -->
+  <div class="container-fluid px-0">
+    <div class="header-holder">
+      <nav class="navbar header navbar-light">
+        <div class="d-flex align-items-center">
+          <a class="navbar-brand"><img src="assets/images/logo.svg" alt="" /></a>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item active" aria-current="page">Lobby</li>
+              <li class="breadcrumb-item active" aria-current="page">Speaker Room</li>
+              <li class="breadcrumb-item active" aria-current="page">Session Room</li>
+            </ol>
+          </nav>
+        </div>
+        <div class="d-flex align-items-center">
+          <p class="mb-0 mr-3 fullname d-none d-md-block">
+            {{ userDetails?.user_details?.name }}
+          </p>
+          <div class="profile">
+            <button mat-button [matMenuTriggerFor]="menu" class="btn profile-holder">
+              {{ userDetails?.user_details?.name[0].toUpperCase() }}
+            </button>
+            <mat-menu #menu="matMenu">
+              <button (click)="navigatetologin()" class="dropdown-btn" mat-menu-item>
+                Log out
+              </button>
+            </mat-menu>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </div>
+
+  <!-- <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <div class="row topNavBarMainDiv">
+          <div class="col-2 topNavBarMainDiv-logoDiv">
+            <img src="../../../assets/logo.png" alt="" />
+          </div>
+          <div class="col-10">
+            <div class="topNavBarMainDiv-menu">
+              <a>Lounge</a>
+              <i class="fa fa-angle-right active" aria-hidden="true"></i>
+              <a class="active">Meeting Hall</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> -->
+
+  <div class="container-fluid">
+    <div class="row">
+      <!--  Left part  -->
+      <div class="col-12 col-md-8 col-lg-9 col-xl-9 pt-5">
+        <div class="container">
+          <!--  Title  -->
+          <div class="row mb-4">
+            <div class="col-md-12">
+              <div class="live">
+                <p class="recording"><span></span>Now</p>
+                <h1>{{ userDetails?.event_details?.name }}</h1>
+              </div>
+            </div>
+          </div>
+
+          <!-- gallery view  -->
+          <div class="row justify-content-center">
+            <!-- <pre class="text-white">{{ remoteCalls | json }}</pre> -->
+            <!-- <pre class="text-white">connected : {{connected | json}}</pre><br />
+                <pre class="text-white">published : {{published | json}}</pre> -->
+
+            <!--  Video gallery view  -->
+            <!-- <div
+              *ngIf="shareScreen"
+              class="remote-screenShare"
+              [id]="remoteScreenShare"
+            ></div> -->
+            <!-- <div class="screen-share" id="share-screen"></div> -->
+            <!-- <app-screen-share></app-screen-share> -->
+            <!-- <div [id]="screenShareDiv" style="width: 500px; height: 500px;"></div> -->
+
+            <ng-container *ngFor="let remote of remoteCalls; let i = index">
+              <div class="mb-30" [ngClass]="{
+                  'col-md-12 single-video': remoteCalls.length == 1,
+                  'col-md-6 two-video': remoteCalls.length == 2,
+                  'col-md-5 three-video':
+                    remoteCalls.length == 3 || remoteCalls.length == 4,
+                  'col-md-4 four-video':
+                    remoteCalls.length == 5 || remoteCalls.length == 6,
+                  'col-md-3 five-video': remoteCalls.length >= 7
+                }">
+
+                <div class="remote-calls" [id]="remote.divId" >
+                  <!-- <div *ngIf="userType.type == 'admin'">
+                    <button *ngIf="!audioMuted" class="btn btn-primary" (click)="muteAudio()">
+                      <i class="material-icons">volume_off</i>
+                    </button>
+                    <button *ngIf="audioMuted" class="btn btn-primary" (click)="unMuteAudio()">
+                      <i class="material-icons">volume_up</i>
+                    </button>
+    
+                    <button *ngIf="!videoMuted" class="btn btn-secondary" (click)="muteVideo()">
+                      <i class="material-icons">videocam_off</i>
+                    </button>
+                    <button *ngIf="videoMuted" class="btn btn-secondary" (click)="unMuteVideo()">
+                      <i class="material-icons">videocam</i>
+                    </button>
+    
+                    <button class="btn btn-danger" (click)="leave()">
+                      <i class="material-icons">call_end</i>
+                    </button>
+                  </div> -->
+                </div>
+                <!-- <div>{{remote | json}}</div> -->
+                <div class="name-designation">
+                  <div class="name">{{ remote.userName }}</div>
+                  <div class="designation">{{ remote.designation }}</div>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+
+          <!--  Control buttons  -->
+          <div class="container control-buttons">
+
+              <div *ngIf="userType.type !== 'attendee'">
+                <button class="btn btn-primary countdown_timer">
+                  <countdown [config]="{leftTime: 7200}"></countdown>
+                </button>
+              </div>
+
+            <!-- Attendee buttons   -->
+            <!-- <div class="row" style="width: 100%; margin: 0 auto;">
+              <div class="col-md-12 d-flex justify-content-between mb-4 buttons-in-responsive flex-wrap"> -->
+
+                <div class="live-number d-flex align-items-center">
+                  <span class="live">Live</span>
+                  <div class="total-number">
+                    <span><i class="fa fa-users" aria-hidden="true"></i>{{ totalUsersList.length }}</span>
+                  </div>
+                </div>
+
+                <div *ngIf="userType.type == 'admin'">
+                  <button class="btn btn-primary" (click)="openDialog()">
+                  <i class="material-icons">perm_media</i>
+                  </button>
+                </div>
+
+                <button *ngIf="!audioMuted" class="btn btn-primary" (click)="muteAudio()">
+                  <i class="material-icons">volume_off</i>
+                </button>
+                <button *ngIf="audioMuted" class="btn btn-primary" (click)="unMuteAudio()">
+                  <i class="material-icons">volume_up</i>
+                </button>
+
+                <button *ngIf="!videoMuted" class="btn btn-primary" (click)="muteVideo()">
+                  <i class="material-icons">videocam_off</i>
+                </button>
+                <button *ngIf="videoMuted" class="btn btn-primary" (click)="unMuteVideo()">
+                  <i class="material-icons">videocam</i>
+                </button>
+
+                <div *ngIf="userType.type !== 'attendee'">
+                  <button *ngIf="!screenShare" class="btn btn-primary" (click)="shareScreen()">
+                   <i class="material-icons">screen_share</i>
+                  </button>
+                  <button *ngIf="screenShare" class="btn btn-primary" (click)="removeScreenShares()">
+                    <i class="material-icons">stop_screen_share</i>
+                  </button>
+                </div>
+
+                <button class="btn btn-primary" (click)="openFullscreen()">
+                  <i class="material-icons">fullscreen</i>
+                </button>
+
+                <!-- <button class="btn btn-primary" (click)="join()">
+                  {{ connected ? "In event" : "Join event" }}
+                </button> -->
+                
+                <!-- <button class="btn btn-danger" (click)="leave()">
+                  Join Session Room
+                </button> -->
+
+                <button class="btn leave-meeting" (click)="leave()">
+                  Exit Room
+                </button>
+
+                <!-- <button class="btn leave-meeting" (click)="leave()" data-toggle="modal" data-target="#confirmExit">
+                  <i class="material-icons">call_end</i>
+                </button> -->
+
+                <!-- <div *ngIf="userType.type == 'admin'">
+                  <select [(ngModel)]="selectuserType" name="selectusertype" (change)="allowUserByType()">
+                    <option value="ALLOW_PANELLIST">Allow Panellist</option>
+                    <option value="ALLOW_MODERATOR">Allow Moderator</option>
+                    <option value="ALLOW_ATTENDEE">Allow Attendee</option>
+                  </select>
+                </div> -->
+
+                <!-- <div class="dropdown" *ngIf="userType.type == 'admin'">
+                  <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <i class="material-icons">how_to_reg</i>
+                  </button>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a id="allow_panellist" (click)="allowUserByType()"class="dropdown-item" href="javascript:void()" data-msg="ALLOW_PANELLIST" >Allow Panellist</a>
+                    <a id="allow_moderator" (click)="allowUserByType()" class="dropdown-item" href="javascript:void()" data-msg="ALLOW_MODERATOR">Allow Moderator action</a>
+                    <a id="allow_attendee" (click)="allowUserByType()" class="dropdown-item" href="javascript:void()" data-msg="ALLOW_ATTENDEE">Allow Attendee</a>
+                  </div>
+                </div> -->
+
+                <button class="btn btn-chat" (click)="goToMobileChat()"><i class="material-icons mr-1">chat</i>Chat</button>
+              </div>
+            </div>
+
+            <!-- Moderator buttons   -->
+            <!-- <div class="row" style="width: 100%; margin: 0 auto;" *ngIf="false">
+              <div class="col-md-12 d-flex justify-content-between mb-4 buttons-in-responsive flex-wrap">
+
+                <div class="live-number d-flex align-items-center">
+                  <span class="live">Live</span>
+                  <div class="total-number">
+                    <span><i class="fa fa-users" aria-hidden="true"></i>{{ totalUsersList.length }}</span>
+                  </div>
+                </div>
+
+                <button class="btn leave-meeting blue-text">Join Call</button>
+                <button class="btn leave-meeting blue-text">
+                  <i class="fa fa-microphone" aria-hidden="true"></i>
+                  Mute
+                </button>
+                <button class="btn leave-meeting blue-text">
+                  Turn off Video
+                </button>
+                <button class="btn leave-meeting blue-text">
+                  Share Screen
+                </button>
+                <button class="btn leave-meeting">Exit Room</button>
+                <button class="btn btn-chat" (click)="goToMobileChat()"><i class="material-icons mr-1">chat</i>Chat</button>
+              </div>
+            </div> -->
+
+            <!-- Panelist buttons   -->
+            <!-- <div class="row" style="width: 100%; margin: 0 auto;" *ngIf="false">
+              <div class="col-md-12 d-flex justify-content-between mb-4 buttons-in-responsive flex-wrap">
+                <div class="live-number d-flex align-items-center">
+                  <span class="live">Live</span>
+                  <div class="total-number">
+                    <span><i class="fa fa-users" aria-hidden="true"></i>{{ totalUsersList.length }}</span>
+                  </div>
+                </div>
+
+                <button class="btn leave-meeting blue-text">Join Call</button>
+                <button class="btn leave-meeting blue-text">Mute</button>
+                <button class="btn leave-meeting blue-text">
+                  Turn off Video
+                </button>
+                <button class="btn leave-meeting blue-text">
+                  Share Screen
+                </button>
+                <button class="btn leave-meeting">Exit Room</button>
+                <button class="btn btn-chat" (click)="goToMobileChat()"><i class="material-icons mr-1">chat</i>Chat</button>
+              </div>
+            </div> -->
+
+            <!-- EEMCEE buttons   -->
+            <!-- <div class="row" style="width: 100%; margin: 0 auto;" *ngIf="false">
+              <div class="col-md-12 d-flex justify-content-between mb-4 buttons-in-responsive flex-wrap">
+                <div class="live-number d-flex align-items-center">
+                  <span class="live">Live</span>
+                  <div class="total-number">
+                    <span><i class="fa fa-users" aria-hidden="true"></i>{{ totalUsersList.length }}</span>
+                  </div>
+                </div>
+
+                <button class="btn leave-meeting blue-text">Join Call</button>
+
+                <button class="btn leave-meeting blue-text">
+                  <i class="fa fa-microphone" aria-hidden="true"></i>
+                  Mute
+                </button>
+
+                <button class="btn leave-meeting blue-text">
+                  <i class="fa fa-video-camera" aria-hidden="true"></i>
+                  Turn off Video
+                </button>
+
+                <button class="btn leave-meeting blue-text">
+                  <i class="fa fa-share-square-o" aria-hidden="true"></i> Share
+                  Screen
+                </button>
+                <button class="btn leave-meeting">Exit Room</button>
+                <button class="btn btn-chat" (click)="goToMobileChat()"><i class="material-icons mr-1">chat</i>Chat</button>
+              </div>
+            </div> -->
+
+            <!--  Admin Control buttons  -->
+            <!-- <div class="row" *ngIf="false"> -->
+              <!-- <div class="col-md-2 d-flex align-items-end admin-buttons justify-content-end px-0">
+                <div class="live-number d-flex align-items-center">
+                  <span class="live">Live</span>
+                  <div class="total-number">
+                    <span><i class="fa fa-users" aria-hidden="true"></i>{{totalUsersList.length}}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-8 d-flex justify-content-center flex-wrap admin-buttons">
+                <button class="btn btn-primary" (click)="shareScreen()">Start Event for Panelist</button>
+                <button class="btn btn-primary" (click)="join()">Start Event for Attendees</button>
+                <button class="btn btn-primary" (click)="leave()">Publish Image</button>
+                <button class="btn btn-primary" (click)="muteAudio()">End Event for Panelist </button>
+                <button class="btn btn-primary" (click)="unMuteAudio()">End Event for Attendees </button>
+                <button class="btn btn-primary" (click)="muteVideo()"> Publish Video </button>
+              </div>
+
+              <div class="col-md-2 d-flex align-items-end admin-buttons px-0">
+                <button class="btn btn-primary" (click)="unMuteVideo()"> Exit Room </button>
+              </div> -->
+
+              <!-- <div class="col-md-12 d-flex justify-content-between mb-4 buttons-in-responsive flex-wrap">
+                <div class="live-number d-flex align-items-center">
+                  <span class="live">Live</span>
+                  <div class="total-number">
+                    <span><i class="fa fa-users" aria-hidden="true"></i>{{ totalUsersList.length }}</span>
+                  </div>
+                </div>
+
+                <button class="btn leave-meeting">
+                  Start Event for Panelist
+                </button>
+                <button class="btn leave-meeting">
+                  Start Event for Attendee
+                </button>
+                <button class="btn leave-meeting">End Event</button>
+                  <button class="btn btn-chat" (click)="goToMobileChat()"><i class="material-icons mr-1">chat</i>Chat</button> -->
+              <!-- </div>
+            </div> -->
+           
+          <!-- </div>
+        </div> -->
+      </div>
+
+      <!--  Right part  -->
+      <div class="col-12 col-md-4 col-lg-3 col-xl-3 rpr-0">
+        <!--  Carousel  -->
+        <div class="Sponsor-zone gray-bg my-1 p-3 hide-in-mobile">
+          <h3>Our Partners</h3>
+          <div class="owl-carousel owl-theme">
+
+            <div class="item">
+              <div class="container">
+                <div class="row">
+                  <div class="col-6 col-md-6 d-flex align-items-center justify-content-center flex-column my-3">
+                    <span>Presenting Partner</span>
+                    <img src="../../../assets/images/sponsors/Logos-01.svg" class="img-fluid" alt="" title="" />
+                  </div>
+                  <div class="col-6 col-md-6 d-flex align-items-center justify-content-center flex-column my-3">
+                    <span>Co-Presented By</span>
+                    <img src=" ../../../assets/images/sponsors/Logos-02.svg" class="img-fluid" alt="" title="" />
+                  </div>
+                  <div class="col-6 col-md-6 d-flex align-items-center justify-content-center flex-column my-3">
+                    <span>Undaunted Partner</span>
+                    <img src=" ../../../assets/images/sponsors/Logos-03.svg" class="img-fluid" alt="" title="" />
+                  </div>
+                  <div class="col-6 col-md-6 d-flex align-items-center justify-content-center flex-column my-3">
+                    <span>Knowledge Partner</span>
+                    <img src=" ../../../assets/images/sponsors/Logos-04.svg" class="img-fluid" alt="" title="" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="item">
+              <div class="container">
+                <div class="row">
+                  <div class="col-6 col-md-6 d-flex align-items-center justify-content-center flex-column my-3">
+                    <span>Software Partner</span>
+                    <img src="../../../assets/images/sponsors/Logos-05.svg" class="img-fluid" alt="" title="" />
+                  </div>
+                  <div class="col-6 col-md-6 d-flex align-items-center justify-content-center flex-column my-3">
+                    <span>Enabling Partner</span>
+                    <img src=" ../../../assets/images/sponsors/Logos-06.svg" class="img-fluid" alt="" title="" />
+                  </div>
+                  <div class="col-6 col-md-6 d-flex align-items-center justify-content-center flex-column my-3">
+                    <span>Process Partner</span>
+                    <img src=" ../../../assets/images/sponsors/Logos-07.svg" class="img-fluid" alt="" title="" />
+                  </div>
+                  <div class="col-6 col-md-6 d-flex align-items-center justify-content-center flex-column my-3">
+                    <span>Supporting Partner</span>
+                    <img src=" ../../../assets/images/sponsors/Logos-08.svg" class="img-fluid" alt="" title="" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!--  Chat  -->
+        <div class="questions-zone gray-bg p-3 mb-1 d-none d-md-block">
+          <h3>Questions</h3>
+          <div class="message-wrapper" #scrollMe [scrollTop]="scrollMe.scrollHeight">
+            <!-- <div class="message">
+                        <div class="container">
+                          <div class="row mb-1">
+                            <div class="message-header d-flex align-items-center justify-content-between">
+                              <div class="d-flex align-items-center">
+                                <span class="profile-icon mr-2">RT</span>
+                                <span class="profile-name">Rohan Thomas</span>
+                              </div>
+                              <span class="profile-time">12 mins ago</span>
+                            </div>
+                          </div>
+
+                          <div class="row">
+                            <div class="message-body">
+                              <p>What are the possible challenges we will
+                                face while using 5G?</p>
+                            </div>
+                          </div>
+                        </div>
+
+                      </div>
+
+                      <div class="message">
+                        <div class="container">
+                          <div class="row mb-1">
+                            <div class="message-header d-flex align-items-center justify-content-between">
+                              <div class="d-flex align-items-center">
+                                <span class="profile-icon mr-2">M</span>
+                                <span class="profile-name">Moderator</span>
+                              </div>
+                              <span class="profile-time">11 mins ago</span>
+                            </div>
+                          </div>
+
+                          <div class="row">
+                            <div class="message-body">
+                              <p>Message from the moderator</p>
+                            </div>
+                          </div>
+                        </div>
+
+                      </div> -->
+
+            <div>
+              <div *ngFor="let item of questionList">
+                <div class="message pending" [ngClass]="
+                    item.senderId == userDetails.user_details.id
+                      ? 'sent'
+                      : 'received'
+                  ">
+                  <div class="container">
+                    <div class="row mb-2">
+                      <div class="message-header d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                          <span class="profile-icon mr-1">{{
+                            item.user_type == "moderator"
+                              ? "O"
+                              : item.user_type == "admin"
+                              ? "A"
+                              : item.senderName[0].toUpperCase()
+                          }}</span>
+                          <span class="profile-name">{{
+                            item.user_type == "moderator"
+                              ? "Organiser"
+                              : item.user_type == "admin"
+                              ? "Admin"
+                              : item.senderName
+                          }}</span>
+                        </div>
+                        <span class="profile-time">{{
+                          item.timeStamp | timeAgoPipe
+                        }}</span>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="message-body">
+                        <p>{{ item.message }}</p>
+                      </div>
+                      <div class="d-flex align-items-center justify-content-end" style="width: 100%;">
+                        <div class="d-flex pending" *ngIf="
+                            item.isApproved == false &&
+                            item.senderId == userDetails.user_details.id
+                          ">
+                          <img src="../../../assets/images/clock.svg" alt="" />
+                          <span>Pending</span>
+                        </div>
+                        <div class="d-flex approved" *ngIf="
+                            item.isApproved == true &&
+                            item.senderId == userDetails.user_details.id &&
+                            userDetails.user_details.user_type == 'attendee'
+                          ">
+                          <span>Approved</span>
+                        </div>
+                      </div>
+                      <!-- Moderator side status -->
+                      <div *ngIf="
+                          item.isApproved == false &&
+                          (userDetails.user_details.user_type == 'moderator' ||
+                            userDetails.user_details.user_type == 'admin')
+                        " class="d-flex align-items-center justify-content-end" style="width: 100%;">
+                        <div class="approve d-flex">
+                          <span (click)="approveMessage(item.id)">Approve</span>
+                        </div>
+                      </div>
+                      <div *ngIf="
+                          item.isApproved == true &&
+                          (userDetails.user_details.user_type == 'moderator' ||
+                            userDetails.user_details.user_type == 'admin') &&
+                          item.user_type != 'panellist' &&
+                          item.user_type != 'admin' &&
+                          item.user_type != 'moderator' &&
+                          item.user_type != 'emcee'
+                        " class="d-flex align-items-center justify-content-end" style="width: 100%;">
+                        <div class="approved d-flex">
+                          <span>Approved</span>
+                        </div>
+                      </div>
+
+                      <div *ngIf="
+                          item.isApproved == true &&
+                          (userDetails.user_details.user_type == 'moderator' ||
+                            userDetails.user_details.user_type == 'admin') &&
+                          item.user_type == 'panellist'
+                        " class="d-flex align-items-center justify-content-end" style="width: 100%;">
+                        <div class="approved d-flex">
+                          <span>From Panellist</span>
+                        </div>
+                      </div>
+
+                      <div *ngIf="
+                          item.isApproved == true &&
+                          (userDetails.user_details.user_type == 'moderator' ||
+                            userDetails.user_details.user_type == 'admin') &&
+                          item.user_type == 'emcee'
+                        " class="d-flex align-items-center justify-content-end" style="width: 100%;">
+                        <div class="approved d-flex">
+                          <span>From Emcee</span>
+                        </div>
+                      </div>
+
+                      <!-- Moderator side status ends -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="post-question">
+              <textarea class="enter-message" [(ngModel)]="question.message" placeholder="Post your question here.."
+                matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize" cdkAutosizeMinRows="1"
+                cdkAutosizeMaxRows="2" (keyup.enter)="submitQuestion()"></textarea>
+              <button (click)="submitQuestion()">
+                <img src="../../../assets/images/send.png" alt="" />
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- footer section -->
+
+  <section class="footer-holder" style="margin-top: 0;">
+    <div class="container-fluid px-0">
+      <div class="footer d-md-flex d-block justify-content-md-between align-items-md-center">
+        <div class="logo-icon">
+          <img src="../../assets/images/events-page/logo.svg" alt="" />
+        </div>
+
+        <a class="footer-logo" href="https://weevirtuall.com/" target="_blank">
+          <div class="powered-by d-flex align-items-center">
+            <p class="mb-0 mr-2">Powered by</p>
+            <img src="../../assets/images/events-page/footer-logo.svg" alt="" />
+          </div>
+        </a>
+
+        <div class="contact-details">
+          <div class="info d-flex">
+            <img src="../../assets/images/events-page/mail.svg" alt="" />
+            <a href="mailto:hello@weevirtuall.com">hello@weevirtuall.com</a>
+          </div>
+          <div class="info d-flex">
+            <img src="../../assets/images/events-page/phone.svg" alt="" />
+            <a href="tel:+91 9769340402">+91 9769340402</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="confirmExit" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+
+      <div class="modal-body">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <div class="d-flex justify-content-center flex-column align-items-center p-4">
+          <span class="mb-3"><img src="../../../assets/images/alert.svg" alt=""> Are you sure?</span>
+          <p class="text-center">Meeting is in progress. Do you still want to
+            proceed to the sponsors site?</p>
+          <div class="d-flex">
+            <button class="btn btn-outline-danger" data-dismiss="modal">Go to meeting</button>
+            <button class="btn btn-primary send">Yes</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,27 @@
+@import "../../../assets/scss/auth.scss";
+@import "../../../assets/scss/footer.scss";
+
+.login-holder {
+  .button-outline {
+    color: #e04141;
+    font-size: 16px;
+    font-weight: 400;
+    border: 1px solid;
+    width: 120px;
+    height: 40px;
+    margin-right: 17px !important;
+    margin-top: 14px;
+  }
+}
+.errorMessage {
+  color: rgb(219, 28, 28) !important;
+  font-size: 14px !important;
+}
+
+.input-holder {
+    margin-bottom: 30px;
+}
+
+.form-errors p {
+    position: absolute;
+}

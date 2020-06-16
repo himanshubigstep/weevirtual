@@ -1,0 +1,156 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import './assets/scss/master.scss';
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+
+
+
+ 
+.image-carousel .owl-item.active.center {
+  transition:all .4s;
+  transform: scale(1.4);
+  z-index:99;
+}
+
+.image-carousel .owl-stage-outer {
+    padding: 100px 0;
+}
+
+.image-carousel .owl-nav, .image-carousel .owl-dots {
+    display: block !important;
+}
+
+.image-carousel .owl-dot > span {
+    width: 20px!important;
+    border-radius: 0!important;
+    height: 4px!important;
+}
+
+.image-carousel .owl-dot.active > span {
+    width: 20px!important;
+    border-radius: 0!important;
+    height: 4px!important;
+    background: #BD2227 !important;
+}
+
+.Sponsor-zone .owl-prev > span {
+    position: absolute;
+    left: -4px;
+    top: 35%;
+    display: -webkit-box;
+    display: flex;
+    -webkit-box-pack: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    align-items: center;
+    font-size: 25px;
+    background: 0 0!important;
+    cursor: pointer;
+    box-shadow: none;
+    color: #000000;
+}
+
+.Sponsor-zone .owl-next > span {
+    position: absolute;
+    right: -4px;
+    top: 35%;
+    display: -webkit-box;
+    display: flex;
+    -webkit-box-pack: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    align-items: center;
+    font-size: 25px;
+    background: 0 0!important;
+    cursor: pointer;
+    box-shadow: none;
+    color: #000000;
+}
+
+.image-carousel .owl-prev > span {
+    position: absolute;
+    left: -30px;
+    top: 45%;
+    display: -webkit-box;
+    display: flex;
+    -webkit-box-pack: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    align-items: center;
+    font-size: 30px;
+    background: 0 0!important;
+    cursor: pointer;
+    box-shadow: none;
+    color: #000000;
+    @media (max-width: 767px) {
+        display: none;
+    }
+}
+
+.image-carousel .owl-next > span {
+    position: absolute;
+    right: -30px;
+    top: 45%;
+    display: -webkit-box;
+    display: flex;
+    -webkit-box-pack: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    align-items: center;
+    font-size: 30px;
+    background: 0 0!important;
+    cursor: pointer;
+    box-shadow: none;
+    color: #000000;
+    @media (max-width: 767px) {
+        display: none;
+    }
+}
+
+.Sponsor-zone .owl-nav {
+    height: 0;
+}
+
+.sponser-banner .owl-prev > span {
+    position: absolute;
+    left: 5px;
+    top: 40%;
+    display: -webkit-box;
+    display: flex;
+    -webkit-box-pack: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    align-items: center;
+    font-size: 30px;
+    background: 0 0!important;
+    cursor: pointer;
+    box-shadow: none;
+    color: #000000;
+}
+
+.sponser-banner .owl-next > span {
+    position: absolute;
+    right: 5px;
+    top: 40%;
+    display: -webkit-box;
+    display: flex;
+    -webkit-box-pack: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    align-items: center;
+    font-size: 30px;
+    background: 0 0!important;
+    cursor: pointer;
+    box-shadow: none;
+    color: #000000;
+}
+/* Importing Bootstrap SCSS file. */
+@import '~bootstrap/scss/bootstrap';
+
+.panelist-popover .popover {
+  width: 400px !important;
+  max-width: 664px !important;
+}

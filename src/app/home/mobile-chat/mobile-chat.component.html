@@ -1,0 +1,164 @@
+  <!--  Chat  -->
+  <div class="questions-zone gray-bg p-3 mb-1">
+   <div class="question">
+        <a class="d-flex align-items-center" (click)="navigateTomeetinghall()"><i class="material-icons mr-2">keyboard_backspace</i> Questions</a>
+   </div>
+    <div class="message-wrapper" #scrollMe [scrollTop]="scrollMe.scrollHeight">
+      <!-- <div class="message">
+                  <div class="container">
+                    <div class="row mb-1">
+                      <div class="message-header d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                          <span class="profile-icon mr-2">RT</span>
+                          <span class="profile-name">Rohan Thomas</span>
+                        </div>
+                        <span class="profile-time">12 mins ago</span>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="message-body">
+                        <p>What are the possible challenges we will
+                          face while using 5G?</p>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="message">
+                  <div class="container">
+                    <div class="row mb-1">
+                      <div class="message-header d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                          <span class="profile-icon mr-2">M</span>
+                          <span class="profile-name">Moderator</span>
+                        </div>
+                        <span class="profile-time">11 mins ago</span>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="message-body">
+                        <p>Message from the moderator</p>
+                      </div>
+                    </div>
+                  </div>
+
+                </div> -->
+
+      <div>
+        <div *ngFor="let item of questionList">
+          <div class="message pending" [ngClass]="
+              item.senderId == userDetails.user_details.id
+                ? 'sent'
+                : 'received'
+            ">
+            <div class="container">
+              <div class="row mb-2">
+                <div class="message-header d-flex align-items-center justify-content-between">
+                  <div class="d-flex align-items-center">
+                    <span class="profile-icon mr-1">{{
+                      item.user_type == "moderator"
+                        ? "O"
+                        : item.user_type == "admin"
+                        ? "A"
+                        : item.senderName[0].toUpperCase()
+                    }}</span>
+                    <span class="profile-name">{{
+                      item.user_type == "moderator"
+                        ? "Organiser"
+                        : item.user_type == "admin"
+                        ? "Admin"
+                        : item.senderName
+                    }}</span>
+                  </div>
+                  <span class="profile-time">{{
+                    item.timeStamp | timeAgoPipe
+                  }}</span>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="message-body">
+                  <p>{{ item.message }}</p>
+                </div>
+                <div class="d-flex align-items-center justify-content-end" style="width: 100%;">
+                  <div class="d-flex pending" *ngIf="
+                      item.isApproved == false &&
+                      item.senderId == userDetails.user_details.id
+                    ">
+                    <img src="../../../assets/images/clock.svg" alt="" />
+                    <span>Pending</span>
+                  </div>
+                  <div class="d-flex approved" *ngIf="
+                      item.isApproved == true &&
+                      item.senderId == userDetails.user_details.id &&
+                      userDetails.user_details.user_type == 'attendee'
+                    ">
+                    <span>Approved</span>
+                  </div>
+                </div>
+                <!-- Moderator side status -->
+                <div *ngIf="
+                    item.isApproved == false &&
+                    (userDetails.user_details.user_type == 'moderator' ||
+                      userDetails.user_details.user_type == 'admin')
+                  " class="d-flex align-items-center justify-content-end" style="width: 100%;">
+                  <div class="approve d-flex">
+                    <span (click)="approveMessage(item.id)">Approve</span>
+                  </div>
+                </div>
+                <div *ngIf="
+                    item.isApproved == true &&
+                    (userDetails.user_details.user_type == 'moderator' ||
+                      userDetails.user_details.user_type == 'admin') &&
+                    item.user_type != 'panellist' &&
+                    item.user_type != 'admin' &&
+                    item.user_type != 'moderator' &&
+                    item.user_type != 'emcee'
+                  " class="d-flex align-items-center justify-content-end" style="width: 100%;">
+                  <div class="approved d-flex">
+                    <span>Approved</span>
+                  </div>
+                </div>
+
+                <div *ngIf="
+                    item.isApproved == true &&
+                    (userDetails.user_details.user_type == 'moderator' ||
+                      userDetails.user_details.user_type == 'admin') &&
+                    item.user_type == 'panellist'
+                  " class="d-flex align-items-center justify-content-end" style="width: 100%;">
+                  <div class="approved d-flex">
+                    <span>From Panellist</span>
+                  </div>
+                </div>
+
+                <div *ngIf="
+                    item.isApproved == true &&
+                    (userDetails.user_details.user_type == 'moderator' ||
+                      userDetails.user_details.user_type == 'admin') &&
+                    item.user_type == 'emcee'
+                  " class="d-flex align-items-center justify-content-end" style="width: 100%;">
+                  <div class="approved d-flex">
+                    <span>From Emcee</span>
+                  </div>
+                </div>
+
+                <!-- Moderator side status ends -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="post-question">
+        <textarea class="enter-message" [(ngModel)]="question.message" placeholder="Post your question here.."
+          matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize" cdkAutosizeMinRows="1"
+          cdkAutosizeMaxRows="2" (keyup.enter)="submitQuestion()"></textarea>
+        <button (click)="submitQuestion()">
+          <img src="../../../assets/images/send.png" alt="" />
+        </button>
+      </div>
+    </div>
+  </div>

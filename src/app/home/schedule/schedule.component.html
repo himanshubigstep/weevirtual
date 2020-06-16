@@ -1,0 +1,182 @@
+<!-- <button (click)="navigatetolobby()" class="btn btn-primary"><i class="fa fa-long-arrow-alt-left"></i></button> -->
+
+<div class="leftside-WebinarSection schedule-mobi">
+        <div class="schedule-details">
+            <div class="schedule">
+                <p class="d-flex align-item-center"><i class="material-icons mr-2" (click)="navigatetolobby()">
+                        keyboard_backspace
+                    </i>Schedule</p>
+                <div class="d-flex date-holder">
+                    <img src="../../../assets/images/calender.svg" alt="">
+                    <p>Friday, 29th May, 2020</p>
+                </div>
+            </div>
+            <div class="event-date-details">
+                <div class="event-date-section" *ngFor="let date of dates" (click)="clickActiveClass(date.name)">
+                    <div class="event-date-day-section">
+                        <p class="event-day">{{ date.name }}</p>
+                    </div>
+                    <div class="event-date-month-section" [ngClass]="{'event-active-date':date.name == activeDate}">
+                        <p class="event-date">{{ date.date }}</p>
+                        <p class="event-month">{{date.month}}</p>
+                    </div>
+                    <div *ngIf="clickActive && (date.name == activeDate)" class="fa fa-sort-down arrowIcon">
+    
+                    </div>
+                </div>
+            </div>
+    
+            <div class="event-stepper">
+                <div id="list-example" class="list-group">
+                    <!-- <div *ngFor="let Webinar of Schedule_Details.webinars">
+                                            <div [ngClass]="checkActiveClass()"
+                                                class="list-group-item list-group-item-action event-stepper-list">
+                                                <div class="bullet-stepper ">
+                                                    <div class="v-stepper">
+                                                        <div class="circle"></div>
+                                                        <div class="line"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="session-hourly-section">
+                                                    <div class="session-timming-details">
+                                                        <p>{{Webinar.start_time}} -
+                                                            {{Webinar.end_time}}</p>
+                                                    </div>
+                                                    <div class="session-title-details">
+                                                        <p>{{Webinar.title}}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div> -->
+                    <div class="list-group-item list-group-item-action event-stepper-list session-active"
+                        *ngFor="let Webinar of Schedule_Details.sessions" data-toggle="modal"
+                        data-target="#exampleModalCenter" (click)="onClickSpeakers(Webinar)">
+                        <div class="bullet-stepper completed" [ngClass]="checkActiveClass()">
+                            <div class="v-stepper">
+                                <div class="circle"></div>
+                                <div class="line"></div>
+                            </div>
+                        </div>
+                        <div class="session-hourly-section">
+                            <div class="d-flex justify-content-between session-timming-details">
+                                <p>{{Webinar.start_time}} -
+                                    {{Webinar.end_time}}</p>
+                                </div>
+                            <div class="session-title-details">
+                                    <p>{{Webinar.title}}</p>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="pitch-presentation">Pitch presesntation</p>
+                                        <a class="view-details" *ngIf="Webinar.teams.length > 0 || Webinar.panellists.length > 0">View
+                                            Details</a>
+    
+                                    </div>
+                                </div>
+                        </div>
+    
+                    </div>
+                   
+                </div>
+            </div>
+            <button class="btn btn-session" (click)="downloadPdf()"><img class="mr-2"
+                    src="../../../assets/images/events-page/download-icon.svg" alt="">Organizer Detail</button>
+        </div>
+    </div>
+    <!-- <div class="list-group-item list-group-item-action event-stepper-list ">
+        <div class="bullet-stepper completed">
+            <div class="v-stepper">
+                <div class="circle"></div>
+                <div class="line"></div>
+            </div>
+        </div>
+        <div class="session-hourly-section">
+            <div class="session-timming-details">
+                <p>07:35 PM - 08:15 PM</p>
+            </div>
+            <div class="session-title-details">
+                <p>Technology and Innovation for Sustainability</p>
+                <div class="session-by">
+                    <p>Moderated by Sunanda Jayaseelan,
+                    </p>
+                    <p>Editor, Leaders of Tomorrow, ET NOW </p>
+                </div>
+            </div>
+        </div>
+        <div class="brief-details">
+            <div class="team">
+                <p>Team 1 </p>
+                <p>BLINKIN</p>
+            </div>
+            <div class="team">
+                <p>Team 2 </p>
+                <p>Azom Systems</p>
+            </div>
+            <div class="team">
+                <p>Team 3 </p>
+                <p>Aegipan Animal Biocare</p>
+            </div>
+            <div class="team">
+                <p>Team 4 </p>
+                <p>SevenM Technologies</p>
+            </div>
+            <div class="team">
+                <p>Team 5 </p>
+                <p>MedTel Healthcare</p>
+            </div>
+            <div class="arrow-left"></div>
+        </div>
+    </div>
+    <div class="list-group-item list-group-item-action event-stepper-list ">
+        <div class="bullet-stepper completed">
+            <div class="v-stepper">
+                <div class="circle"></div>
+                <div class="line"></div>
+            </div>
+        </div>
+        <div class="session-hourly-section">
+            <div class="session-timming-details">
+                <p>08:15 PM - 08:30 PM</p>
+            </div>
+            <div class="session-title-details">
+                <p>Q & A</p>
+            </div>
+        </div>
+    </div> -->
+    <!--  -->
+    
+    <div class="modal fade custom-modal" id="exampleModalCenter" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <i class="material-icons">close</i>
+                    </button>
+                </div>
+                <div class="modal-body">
+         
+                        <!-- <div class="team">
+                            <p>{{speakers.title}} </p>
+                            <p>{{speakers.description}}</p>
+                        </div> -->
+                      <ng-container *ngIf="speakers.teams != {}">
+                        <div class="team" *ngFor="let team of speakers.teams">
+                            <span class="team-title">{{team.title}} </span>
+                            <span class="team-name">{{team.team_name}}</span>
+                            
+                        </div>
+                      </ng-container>
+                      <ng-container *ngIf="speakers.panellists != {}">
+                        <span class="panelist"  *ngIf="speakers.panellists[0]">Panelist</span>
+                        <ul class="team mt-3 pl-3">
+                            <li class="team" *ngFor="let panellist of speakers.panellists">
+                                <p>{{panellist.full_name}} - {{panellist.designation}}, {{panellist.organization}} </p>
+                     
+                            </li>
+    
+                        </ul>
+                      </ng-container>
+                 
+                </div>
+            </div>
+        </div>
+    </div>

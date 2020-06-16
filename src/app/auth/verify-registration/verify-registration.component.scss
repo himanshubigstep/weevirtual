@@ -1,0 +1,39 @@
+@import '../../../assets/scss/auth.scss';
+@import '../../../assets/scss/footer.scss';
+
+.disabled{
+    opacity: 0.6 !important;
+    cursor:default;
+}
+.errorMessage{
+    color: rgb(219, 28, 28) !important;
+  }
+  
+.auth-icons {
+    .stepper-info {
+        .stepper-active {
+            background-color: #fff !important;
+            border: 3px solid #001663 !important;
+            color: #fff !important;
+            i {
+                color: #001663 !important;
+            }
+        }
+        .stepper-people {
+            width: 30px;
+            height: 30px;
+        }
+        .stepper-correct {
+            background-color: #001663 !important;
+            border: 3px solid #fff !important;
+            color: #fff !important;
+            opacity: 1 !important;
+            width: 34px !important;
+            height: 34px !important;
+            i {   
+                 margin-top: 5px;
+                color: #fff !important;
+            }
+        }
+    }
+}

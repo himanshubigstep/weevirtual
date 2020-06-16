@@ -1,0 +1,57 @@
+@import "../../../app/home/lounge/lounge.component.scss";
+
+i {
+  color: white;
+}
+
+.schedule-mobi {
+  display: block;
+}
+
+.custom-modal {
+  .modal-content {
+    @media (max-width:575px) {
+      margin: 0 25px;
+    }
+    .modal-header {
+      border-bottom: transparent !important;
+    }
+    .modal-body {
+      padding: 0px 35px 35px;
+      overflow-y: auto;
+      @media (max-width:767px) {
+        max-height: 400px;
+      }
+      @media (min-width:768px) and (max-width:991px) {
+        max-height: 600px;
+      }
+    }
+  }
+}
+
+.close {
+  i {
+    color: black;
+    opacity: 1;
+  }
+}
+
+
+.team-title {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #626060;
+}
+.team-name {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #000000;
+}
+
+.event-stepper {
+    height: auto;
+    overflow: hidden;
+    overflow-y: auto;
+}
