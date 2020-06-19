@@ -128,3 +128,43 @@ select#intrests {
 .select-dropdown select {
   color: #9b999c;
 }
+
+/* Room Controls - Slide-toggle */
+.room-controls label.mat-slide-toggle-label {
+    flex-direction: row-reverse;
+    justify-content: space-between;;
+}
+
+span.mat-slide-toggle-content {
+    // min-width: 175px;
+    color: #171d63;
+}
+
+mat-slide-toggle {
+    margin: 5px 0;
+}
+
+.mat-checkbox-checked.mat-accent .mat-checkbox-background {
+    background: #55b637 !important;
+}
+
+.mat-slide-toggle.mat-checked .mat-slide-toggle-thumb {
+  background: #fff;
+}
+
+body #slide-toggle .mat-slide-toggle.mat-checked .mat-slide-toggle-bar {
+    background-color: #55b637 !important;
+}
+
+.mat-radio-button.mat-accent.mat-radio-checked .mat-radio-outer-circle, .mat-radio-button.mat-accent.mat-radio-checked .mat-radio-outer-circle {
+    background-color: #55b637 !important;
+    border-color: #55b637;
+}
+
+.mat-radio-button.mat-accent .mat-radio-inner-circle {
+    background: #fff;
+}
+
+.icons .mat-checkbox-checked.mat-accent .mat-checkbox-background {
+  background: #001663 !important;
+}

@@ -145,6 +145,7 @@ span {
   box-shadow: 0 20px 40px 0 rgba(0, 0, 0, 0.5);
   padding: 33px 51px 40px;
   margin-top: 23px;
+  position: relative;
 
   @media (max-width:767px) {
     padding: 45px 30px 30px;

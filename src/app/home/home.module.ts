@@ -30,6 +30,10 @@ import {MatDialogModule} from '@angular/material/dialog';
 import { MeetingHallDailogComponent } from './meeting-hall/dailog/meeting-hall-dailog/meeting-hall-dailog.component';
 import {MatTabsModule} from '@angular/material/tabs';
 import { SessionRoomComponent } from './meeting-hall/session-room/session-room.component';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatRadioModule } from '@angular/material/radio';
 import { CountdownModule } from 'ngx-countdown';
 
 
@@ -69,7 +73,12 @@ const agoraConfig: AgoraConfig = {
     NgbPaginationModule, NgbAlertModule,NgbModule,
     MatDialogModule,
     MatTabsModule,
-    CountdownModule,
+    
+    MatSlideToggleModule,
+    MatCheckboxModule,
+    MatTooltipModule,
+    MatRadioModule,
+    CountdownModule
   ],
   providers: []
 })

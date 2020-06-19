@@ -19,6 +19,9 @@ import EventEmitter from "event-emitter";
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 import {MatTabsModule} from '@angular/material/tabs';
 import { MeetingHallDailogComponent } from "src/app/home/meeting-hall/dailog/meeting-hall-dailog/meeting-hall-dailog.component";
+import { FormGroup, Validators, FormBuilder } from '@angular/forms';
+import { NgbDropdownConfig } from '@ng-bootstrap/ng-bootstrap';
+import { HttpService } from 'src/app/shared/services/http.service';
 
 declare var $: any;
 
@@ -46,6 +49,26 @@ export class MeetingHallComponent implements OnInit {
   totalUsersList = [];
   userType:any;
   selectuserType: String;
+
+  activeTab = 1;
+  activeTab2 = 1;
+  progressTab = 1;
+  timerForm: FormGroup;
+  hd = true;
+  hd_plus = false;
+  individualHd = true;
+  individualHdPlus = false;
+  disabledIcon = true;
+  disabledIcon2 = true;
+  hours;
+  minutes;
+  seconds;
+  h;
+  m;
+  s;
+  totalSeconds;
+  isShow = true;
+  switch_view = true;
   /**
    * App ID used when connecting to the Agora.io servers
    */
@@ -58,6 +81,7 @@ export class MeetingHallComponent implements OnInit {
    * Generated user ID that is attached to the local client when joining a meeting room
    */
   uid: number;
+  screenClientJoined = false;
 
   /**
    * All the IDs of other users that have joined the call
@@ -80,16 +104,22 @@ export class MeetingHallComponent implements OnInit {
   audioMuted = false;
   videoMuted = false;
 
+  remoteAudioMuted = false;
+  remoteVideoMuted= false;
+
   screenShareDiv: string = "agora_screen";
 
   constructor(
     private agoraService: NgxAgoraService,
     public  chatServeice: ChatService,
+    public  httpservice: HttpService,
     private eventService: EventService,
     private router: Router,
     private title: Title,
     private meta: Meta,
     public dialog: MatDialog,
+    private fb: FormBuilder,
+    config: NgbDropdownConfig,
     @Inject(DOCUMENT) private document: any
   ) {
     this.userDetails = this.eventService.getEventDetails();
@@ -98,18 +128,18 @@ export class MeetingHallComponent implements OnInit {
     this.uid = this.userDetails.user_details.id; //Math.floor(Math.random() * 100);
 
     this.client = this.agoraService.createClient({
-      mode: "rtc",
+      mode: "live",
       codec: "h264",
     });
-    this.assignClientHandlers();
+    //this.assignClientHandlers();
 
     this.screenClient = this.agoraService.createClient({
       mode: "rtc",
       codec: "vp8",
     });
-    this.assignScreenClientHandlers();
+    //this.assignScreenClientHandlers();
 
-    this.join();
+    //this.join();
 
     let uType:any = localStorage.getItem('currentUser');
     this.userType = JSON.parse(uType);
@@ -130,25 +160,40 @@ export class MeetingHallComponent implements OnInit {
     this.rtmLogin();
 
   }
-    elem;
+  elem;
+  mediaList: any;
 
   ngOnInit() {
-    this.elem = document.documentElement;
+
+    this.httpservice.get(
+      `events/media-upload/` + 1
+    ).subscribe(result => {
+      this.mediaList = result;
+      console.log(result);
+      //this.animal = result;
+    });
+    
+    this.getMeetingChat(this.userDetails.event_details.id);
+    this.loadSessionTimerForm();
+    
     this.getPanellistUsers(this.userDetails.event_details.id);
 
-    this.client.init(
-      this.appId,
-      () => console.log("Initialized successfully"),
-      () => console.log("Could not initialize")
-    );
+    // this.client.init(
+    //   this.appId,
+    //   () => console.log("Initialized successfully"),
+    //   () => console.log("Could not initialize")
+    // );
 
-    this.screenClient.init(
-      this.appId,
-      () => console.log("screen Initialized successfully"),
-      () => console.log("screen Could not initialize")
-    );
+    // this.screenClient.init(
+    //   this.appId,
+    //   () => console.log("screen Initialized successfully"),
+    //   () => console.log("screen Could not initialize")
+    // );
 
     this.loadCarouselScript();
+
+    const urlParams = new URLSearchParams(window.location.search);
+        console.log(urlParams.get('role'));
 
     if (
       this.userDetails.user_details.user_type != "audience" &&
@@ -160,7 +205,14 @@ export class MeetingHallComponent implements OnInit {
         userName: this.userDetails.user_details.name,
         designation: this.userDetails.user_details.designation,
       });
+      
       this.userRole = "host";
+      // if(this.userDetails.user_details.user_type!='admin'){
+      //   this.userRole = 'audience';
+      // }
+      console.log(this.userDetails.user_details.user_type)
+      console.log("userrole"+this.userRole)
+      
     }
 
     this.getMeetingChat(this.userDetails.event_details.id);
@@ -171,6 +223,109 @@ export class MeetingHallComponent implements OnInit {
       { name: 'description', content: 'Session On Technology and Innovation for Sustainability. Leaders of Tomorrow - Season 8, the most comprehensive enabling platform for small businesses.' },
     ]);
     
+  }
+
+  // Session Timer Form
+  loadSessionTimerForm() {
+    this.timerForm = this.fb.group({
+      firstDigit: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(1)]],
+      secondDigit: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(1)]],
+      thirdDigit: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(1)]],
+      fourthDigit: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(1)]],
+      fifthDigit: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(1)]],
+      sixthDigit: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(1)]],
+    });
+  }
+  loadSeoTags() {
+    this.title.setTitle('Meeting Hall | Leaders Of Tomorrow - Season 8 | Largest Entrepreneurship Platform | ET NOW');
+    this.meta.addTags([
+      {
+        name: 'description',
+        content: 'Session On Technology and Innovation for Sustainability. Leaders of Tomorrow - Season 8, the most comprehensive enabling platform for small businesses.'
+      },
+    ]);
+  }
+
+  /* Recording functions */
+  selectHdResolution() {
+    this.hd = !this.hd;
+    this.hd_plus = false;
+  }
+
+  selectHdPlusResolution() {
+    this.hd_plus = !this.hd_plus;
+    this.hd = false;
+  }
+
+  selectHdResolutionIndividual() {
+    this.individualHd = !this.individualHd;
+    this.individualHdPlus = false;
+  }
+
+  selectHdPlusResolutionIndividual() {
+    this.individualHdPlus = !this.individualHdPlus;
+    this.individualHd = false;
+  }
+
+  capturePremiseChange(event) {
+    if (event.checked == true) {
+      this.disabledIcon = false;
+    }
+    else {
+      this.disabledIcon = true;
+    }
+  }
+
+  captureIndividualChange(event) {
+    if (event.checked == true) {
+      this.disabledIcon2 = false;
+    }
+    else {
+      this.disabledIcon2 = true;
+    }
+  }
+
+  // SwapView
+  swapView() {
+    this.switch_view = !this.switch_view;
+  }
+
+
+  // Handle Reverse timer
+  onSubmitStartTimer() {
+
+    this.isShow = !this.isShow;
+
+    this.hours = `${this.timerForm.get('firstDigit').value}${this.timerForm.get('secondDigit').value}`;
+    this.minutes = `${this.timerForm.get('thirdDigit').value}${this.timerForm.get('fourthDigit').value}`;
+    this.seconds = `${this.timerForm.get('fifthDigit').value}${this.timerForm.get('sixthDigit').value}`;
+
+    this.h = this.hours * 3600;
+    this.m = this.minutes * 60;
+    this.s = this.seconds * 1;
+
+    this.totalSeconds = this.h + this.m + this.s;
+
+    console.log('Total Seconds', this.totalSeconds);
+  }
+
+  // Focus next field in the session timer
+  tabChange(val, event?): void {
+    const regEx = /^[0-9]*$/;
+    const ele: any = document.querySelectorAll('.digit');
+    ele[val].focus();
+    if (regEx.test(event.target.value)) {
+      const ele: any = document.querySelectorAll('.digit');
+      console.log('EVENTS => ', event);
+      if (ele[val - 1].value !== '') {
+        ele[val] ? ele[val].focus() : ele[val - 1].focus();
+      } else if (ele[val - 1].value === '') {
+        ele[val - 2] ? ele[val - 2].focus() : ele[val - 1].focus();
+      }
+    } else {
+      event.target.value = '';
+    }
+
   }
 
 openDialog(): void {
@@ -251,7 +406,7 @@ openDialog(): void {
     this.rtmClient.login({ token: null, uid: this.uid.toString() } ).then(() => {
       console.log('AgoraRTM client login success');
       this.sendPeerMessage();
-
+      this.join();
       // JOIN CHANNEL
       this.rtmChannel.join().then(() => {
         console.log('Channel join');
@@ -326,7 +481,9 @@ openDialog(): void {
   }
 
   private assignClientHandlers(): void {
-   
+
+    console.log("hlwassignclient")
+    console.log(ClientEvent)
     this.client.on(ClientEvent.LocalStreamPublished, (evt) => {
       this.published = true;
       console.log("Publish local stream successfully");
@@ -345,6 +502,7 @@ openDialog(): void {
     });
 
     this.client.on(ClientEvent.RemoteStreamAdded, (evt) => {
+      console.log("hlwsubscribe")
       const stream = evt.stream as Stream;
       this.client.subscribe(stream, { audio: true, video: true }, (err) => {
         console.log("Subscribe stream failed", err);
@@ -352,6 +510,7 @@ openDialog(): void {
     });
 
     this.client.on(ClientEvent.RemoteStreamSubscribed, (evt) => {
+      console.log("stream subscribed")
       const stream = evt.stream as Stream;
       const id = this.getRemoteId(stream);
 
@@ -363,13 +522,28 @@ openDialog(): void {
       const selectedObj = this.panellistUsersList.filter(
         (res) => res.id == stream.getId()
       )[0];
-      if (selectedObj) {
+      //if (selectedObj) {
+        console.log("hlwselectedobj")
+        console.log(stream)
+        console.log(selectedObj)
         // this.remoteCalls.push({ divId: id, userName: "full name ", designation: 'developer' });
-        this.remoteCalls.push({
-          divId: id,
-          userName: selectedObj.full_name,
-          designation: selectedObj.designation,
-        });
+        if((typeof this.screenStream== 'undefined') || (stream.getId()!=this.screenStream.getId())){
+          this.remoteCalls.push({
+            divId: id,
+            // userName: selectedObj.full_name,
+            // designation: selectedObj.designation,
+            userName: "Sanjeev",
+            designation: "Developer",
+            stream: stream
+          });
+        //}
+        // this.remoteCalls.push({
+        //   divId: id,
+        //   // userName: selectedObj.full_name,
+        //   // designation: selectedObj.designation,
+        //   userName: "Sanjeev",
+        //   designation: "Developer",
+        // });
 
         setTimeout(() => stream.play(id), 1000);
       }
@@ -379,7 +553,9 @@ openDialog(): void {
       const stream = evt.stream as Stream;
       if (stream) {
         stream.stop();
-        this.remoteCalls = [];
+        stream.close();
+        this.removeRemoteStream(stream);
+        //this.remoteCalls = [];
         console.log(`Remote stream is removed ${stream.getId()}`);
       }
     });
@@ -387,23 +563,39 @@ openDialog(): void {
     this.client.on(ClientEvent.PeerLeave, (evt) => {
       const stream = evt.stream as Stream;
       if (stream) {
+        console.log(this.remoteCalls)
+        console.log(stream['params'].streamID)
+        //this.destroy();
         stream.stop();
-        this.remoteCalls = this.remoteCalls.filter(
-          (call) => call.divId !== `${this.getRemoteId(stream)}`
-        );
+        stream.close();
+        
+        this.removeRemoteStream(stream);
+
+        const removeClientStreamId = `${this.getRemoteId(stream)}`;
+        
         this.totalUsersList = this.totalUsersList.filter(
-          (call) => call !== `${this.getRemoteId(stream)}`
+          (call) => call !== removeClientStreamId
         );
-        console.log(`${evt.uid} left from this channel`);
+        console.log(`${evt.uid} left from this channel localclient`);
+        console.log(`${this.getRemoteId(stream)}`)
+        console.log("this.remoteCalls")
+        console.log(this.remoteCalls)
       }
     });
+  }
+
+  removeRemoteStream = (stream) => {
+    const removeClientStreamId = `${this.getRemoteId(stream)}`;
+    this.remoteCalls = this.remoteCalls.filter(
+      (call) => call.divId !== removeClientStreamId
+    );
   }
 
   private assignScreenClientHandlers(): void {
    
     this.screenClient.on(ClientEvent.LocalStreamPublished, (evt) => {
-      this.published = true;
-      console.log("Publish local screen stream successfully");
+      //this.published = true;
+      console.log("Publish screen screen stream successfully");
     });
 
     this.screenClient.on(ClientEvent.Error, (error) => {
@@ -422,36 +614,48 @@ openDialog(): void {
       const stream = evt.stream as Stream;
       if (stream) {
         stream.stop();
-        console.log(`${evt.uid} left from this channel`);
+        console.log(`${evt.uid} left from this channel screenclient`);
       }
     });
 
-    //this.screenStream.on("stopScreenSharing", () => {
-    //  shareEnd();
+    // this.screenStream.on("stopScreenSharing", () => {
     //  console.log("Stop Screen Sharing at" + new Date());
-    //});
+    // });
 
   }
 
   join(): void {
     if (!this.connected) {
-      this.localStream = this.agoraService.createStream({
-        streamID: this.uid,
-        audio: true,
-        video: true,
-        screen: false,
-      });
-      this.assignLocalStreamHandlers();
-      this.init();
+      
+      this.client.init(
+        this.appId,
+        () => {
+          console.log("Initialized successfully") 
+          this.client.join(null, this.channel, this.uid, (uid) => {
+            console.log("User " + uid + " join channel successfully")
 
-      this.client.join(null, this.channel, this.uid);
-      setTimeout(() => {
-        this.publish();
-        this.client.setClientRole(this.userRole, () => {
-          console.log("client role changed");
-        });
-        this.totalUsersList.push("agora_remote-" + this.uid);
-      }, 3000);
+            this.assignClientHandlers()
+
+            this.client.setClientRole(this.userRole, () => {
+              console.log("client role changed");
+            });
+
+            this.localStream = this.agoraService.createStream({
+              streamID: this.uid,
+              audio: true,
+              video: true,
+              screen: false,
+            });
+
+            this.assignLocalStreamHandlers();
+
+            this.init();
+            
+          });
+        },
+        () => console.log("Could not initialize")
+      );
+    
     } else {
       alert("Aready joined the event ");
     }
@@ -466,6 +670,10 @@ openDialog(): void {
       () => {
         // The user has granted access to the camera and mic.
         console.log("getUserMedia successfully");
+
+        if(this.userRole=='host'){
+          this.publish();
+        }
 
         if (
           this.userDetails.user_details.user_type != "audience" &&
@@ -501,11 +709,13 @@ openDialog(): void {
       this.client.leave(
         () => {
           console.log("Left the channel successfully");
+          
+          this.unpublish();
           this.localStream.stop();
           this.localStream.close();
-          this.connected = false;
-          this.published = false;
-          this.remoteCalls = [];
+          // this.connected = false;
+          // this.published = false;
+          //this.remoteCalls = [];
           this.screenShareDivID = "";
 
           this.router.navigate(["/home/lounge/"]);
@@ -523,34 +733,56 @@ openDialog(): void {
   }
 
   unpublish(): void {
+    this.client.setClientRole('audience');
     this.client.unpublish(this.localStream, (error) => console.error(error));
     this.published = false;
   }
 
   shareScreen(): void {
+
+    console.log("hlwsharescreen")
    
     var userID = null; // set to null to auto generate uid on successfull connection
+
+    if(!this.screenClientJoined){
+      this.screenClient.init(
+        this.appId,
+        () => { 
+          console.log("screen Initialized successfully") 
+          this.screenClient.join(null, this.channel , userID, (uid) => {
+            console.log(
+              'join channel: ' + this.channel + ' success, uid: ' + uid
+            )
+            this.screenClientJoined = true;
+            this.initScreenShare()
+          })
+        },
+        () => console.log("screen Could not initialize")
+      );
+    }else{
+      this.initScreenShare()
+    }
 
     //Number.tem = windows.navigator.userAgent.match(/(Chrome(?=\/))\/?(\d+)/i);
     //if(parseInt(tem[2]) >= 72  && navigator.mediaDevices.getDisplayMedia ) {
      // Create the stream for screensharing
-        this.screenStream = this.agoraService.createStream({
-            streamID: this.uid + "-screen",
-            audio: false,
-            video: false,
-            screen: true,
-        });
+        // this.screenStream = this.agoraService.createStream({
+        //     streamID: this.uid + "-screen",
+        //     audio: false,
+        //     video: false,
+        //     screen: true,
+        // });
     //}
 
-    this.assignLocalScreenStreamHandlers();
-    this.initScreenShare();
+    // this.assignLocalScreenStreamHandlers();
+    // this.initScreenShare();
 
-    this.screenClient.join(null, this.channel , userID);
-    setTimeout(() => {
+    // this.screenClient.join(null, this.channel , userID);
+    // setTimeout(() => {
 
-        this.screenPublish();
-        this.totalUsersList.push("agora_remote-screen" + this.uid);
-      }, 3000);
+    //     this.screenPublish();
+    //     this.totalUsersList.push("agora_remote-screen" + this.uid);
+    //   }, 3000);
 
   }
 
@@ -566,12 +798,30 @@ openDialog(): void {
   }
 
   protected initScreenShare(): void {
+
+    this.screenStream = this.agoraService.createStream({
+        streamID: this.uid + "-screen",
+        audio: false,
+        video: false,
+        screen: true,
+    });
+
+    this.assignScreenClientHandlers();
+
     this.screenStream.init(
       () => {
+        this.screenPublish();
         // The user has granted access to the camera and mic.
         // console.log("getUserMedia successfully");
         this.screenShare = true;
-        this.screenStream.play("agora_remote-" + this.uid);
+        const user_id = this.uid+'-screen';
+        console.log("screestream"+user_id)
+        console.log(this.screenStream)
+        console.log(this.screenStream['params'].streamID)
+        if(user_id != this.screenStream['params'].streamID){
+          this.screenStream.play("agora_remote-" + this.uid);
+        }
+        
       },
       (err) => console.log("getUserMedia failed", err)
     );
@@ -584,6 +834,7 @@ openDialog(): void {
   } 
 
   getPanellistUsers(eventId) {
+    console.log("event id"+eventId)
     this.eventService
       .getPanellistByEventId({ event_id: eventId })
       .then((response: any) => {
@@ -630,6 +881,26 @@ openDialog(): void {
         },
       },
     });
+  }
+
+  muteRemoteAudio(stream_id){
+    this.remoteCalls[stream_id].stream.muteAudio();
+    this.remoteAudioMuted = true;
+  }
+
+  unRemoteMuteAudio(stream_id) {
+    this.remoteCalls[stream_id].stream.unmuteAudio();
+    this.remoteAudioMuted = false;
+  }
+
+  muteRemoteVideo(stream_id) {
+    this.remoteCalls[stream_id].stream.muteVideo();
+    this.remoteVideoMuted = true;
+  }
+
+  unMuteRemoteVideo(stream_id) {
+    this.remoteCalls[stream_id].stream.unmuteVideo();
+    this.remoteVideoMuted = false;
   }
 
   muteAudio() {
@@ -720,9 +991,19 @@ openDialog(): void {
   }
 
   removeScreenShares() {
+    console.log("removescreenshare")
+    //this.screenStream.stop();
+    this.screenStream.close();
+    this.screenShare = false;
+    //this.removeRemoteStream(this.screenStream);
     this.screenUnPublish();
-    this.screenStream.stop();
-    this.join();
+
+    this.localStream.play("agora_remote-" + this.uid);
+
+    // this.connected = false;
+    // this.published = false;
+    // this.connected = false;
+    // this.join();
     // this.publish();
   }
 
@@ -737,7 +1018,7 @@ openDialog(): void {
   }
 
   screenUnPublish() {
-    this.client.unpublish(this.screenStream, (error) => console.error(error));
+    this.screenClient.unpublish(this.screenStream, (error) => console.error(error));
   }
 
   allowUserByType(){

@@ -1,0 +1,130 @@
+@import "./variables.scss";
+
+// *********** common css *********** //
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+label,
+select,
+option,
+input,
+textarea,
+button,
+a,
+li,
+::placeholder,
+body {
+  font-family: $font-Manrope;
+}
+
+//
+.form-errors {
+  color: #db1c1c;
+  text-align: left;
+  p {
+    margin-bottom: 0px;
+    font-size: 14px;
+    font-weight: 400;
+  }
+}
+
+// buttons
+
+button {
+  &:focus {
+    outline: 0 !important;
+    box-shadow: none !important;
+  }
+}
+
+// breadcrumbs
+
+.breadcrumb-item + .breadcrumb-item::before {
+  content: ">" !important;
+}
+.breadcrumb-item.active {
+  color: $color-white !important;
+  font-size: $fontSize-smaller;
+  font-weight: $fontWeight-regular;
+}
+.breadcrumb {
+  background-color: $color-white !important;
+  .breadcrumb-item {
+    a {
+      color: #9b999c;
+      font-size: $fontSize-smaller;
+      font-weight: $fontWeight-regular;
+    }
+  }
+}
+
+//
+
+.form-control:focus {
+  box-shadow: unset !important;
+}
+
+select#intrests {
+  height: 43px;
+}
+
+// @media (max-width: 768px) {
+//   body .intro-holder {
+//       padding-top: 20px !important;
+//   }
+// }
+
+@media (max-width: 768px) {
+  .menu {
+    button.btn.contact {
+      display: none;
+    }
+    button.btn.download {
+      padding: 4px 8px !important;
+      font-size: 14px !important;
+    }
+  }
+}
+
+.sponsor-logo {
+  img {
+    width: 156px;
+     @media (max-width: 767px) {
+      width: 125px !important;
+    }
+  }
+}
+
+.hide-in-mobile {
+  @media (max-width: 767px) {
+    display: none !important;
+  }
+}
+
+.hide-in-desktop {
+  @media (min-width: 768px) {
+    display: none !important;
+  }
+}
+
+@media (max-width: 359px) {
+  .custom-container .row {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+  .menu button.btn.download {
+    font-size: 10px !important;
+  }
+  .sponsor-logo img {
+    width: 115px !important;
+  }
+}
+
+.select-dropdown select {
+  color: #9b999c;
+}
