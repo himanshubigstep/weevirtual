@@ -22,8 +22,8 @@ export class LoungeComponent implements OnInit {
   @ViewChild('menu') menu: ElementRef;
 
   isMenuOpen = false;
-  enableVideoStreaming = true;
-  enableVideoJoiningButton = true;
+  enableVideoStreaming = false;
+  enableVideoJoiningButton = false;
   eventAllDetails;
   event_details;
   sponsors_details;
@@ -89,6 +89,10 @@ export class LoungeComponent implements OnInit {
       console.log(response);
       this.eventAllDetails = this.eventService.getEventDetails();
       this.user_details = this.eventAllDetails.user_details;
+      this.eventService.getVedioStreaminStatus(this.user_details.user_type,this.user_details.event).subscribe(response => {
+        let res = response;
+        this.enableVideoStreaming = res.status;
+      });
       this.Name = this.user_details.name[0];
       this.fullName = this.user_details.name;
       this.event_details = this.eventAllDetails.event_details;
@@ -100,7 +104,19 @@ export class LoungeComponent implements OnInit {
       this.Schedule_Details = this.event_details.schedule_details[0];
       this.activeDate = this.dates[0].name;
       this.sponsors_details = this.eventAllDetails.sponsor_details;
-      this.getVideoStatus();
+      
+    });
+    let resVideo;
+    this.eventService.connect().subscribe(response =>{
+      resVideo = JSON.parse(response.data);
+      console.log(resVideo,this.user_details);
+      if(this.user_details.user_type == 'panellist'){
+        this.enableVideoStreaming = resVideo.panelist;
+      }
+      if(this.user_details.user_type == 'attendee'){
+        console.log(this.user_details.user_type,resVideo.attendee);
+        this.enableVideoStreaming = resVideo.attendee;
+      }
     });
     this.videoModal();
     this.popOver();
@@ -207,17 +223,7 @@ export class LoungeComponent implements OnInit {
   popOver(){
     $().popover({container: 'body'})
   }
-getVideoStatus(){
-  this.getVideoStatusCheckTimer = setInterval(()=>{
-    this.eventService.getVedioStreaminStatus(this.user_details.user_type,this.user_details.event).subscribe(response => {
-      let res = response;
-      this.enableVideoStreaming = res.status;
-      if(this.enableVideoStreaming){
-        clearInterval(this.getVideoStatusCheckTimer);
-      }
-    });
-  },1000);
-}
+
   
 OnDestroy() {
   clearInterval(this.getVideoStatusCheckTimer);

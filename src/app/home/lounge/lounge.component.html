@@ -1,223 +1,187 @@
 <div class="lobby-holder">
-        <div class="container-fluid px-0">
-            <div class="header-holder">
-                <nav class="navbar header navbar-light">
-                    <div class="d-flex align-items-center">
-                        <a class="navbar-brand"><img src="assets/images/logo.svg" alt=""></a>
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item active" aria-current="page">Lobby</li>
-                            </ol>
-                        </nav>
+    <div class="container-fluid px-0">
+        <div class="header-holder">
+            <nav class="navbar header navbar-light">
+                <div class="d-flex align-items-center">
+                    <a class="navbar-brand"><img src="assets/images/logo.svg" alt=""></a>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item active" aria-current="page">Lobby</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="d-flex align-items-center">
+                    <p class="mb-0 mr-3 fullname d-none d-md-block" *ngIf="fullName">{{fullName}}</p>
+                    <div class="profile">
+                        <button mat-button [matMenuTriggerFor]="menu" class="btn profile-holder"
+                            *ngIf="Name">{{Name}}</button>
+                        <mat-menu #menu="matMenu">
+                            <button (click)="navigatetologin()" class="dropdown-btn" mat-menu-item>Log out</button>
+                        </mat-menu>
                     </div>
-                    <div class="d-flex align-items-center">
-                        <p class="mb-0 mr-3 fullname d-none d-md-block" *ngIf="fullName">{{fullName}}</p>
-                        <div class="profile">
-                            <button mat-button [matMenuTriggerFor]="menu" class="btn profile-holder"
-                                *ngIf="Name">{{Name}}</button>
-                            <mat-menu #menu="matMenu">
-                                <button (click)="navigatetologin()" class="dropdown-btn" mat-menu-item>Log out</button>
-                            </mat-menu>
-                        </div>
-                    </div>
-                </nav>
-            </div>
+                </div>
+            </nav>
         </div>
-    
-    
-    
-        <!-- <div class="bg-image">
-            <img src="assets/images/lobby-bg.png" class="img-fluid d-none d-lg-block" alt="">
-            <img src="assets/images/mobi-bg.jpg" class="img-fluid d-block d-lg-none" alt="">
-        </div> -->
-        <div class="lobby-section">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-md-12 col-lg-4 col-xl-3 col-sm-12 col-12 px-0">
-                        <div class="leftside-WebinarSection">
-                            <div class="schedule-details">
-                                <div class="schedule">
-                                    <p>Schedule</p>
-                                    <div class="d-flex date-holder">
-                                        <img src="../../../assets/images/calender.svg" alt="">
-                                        <p>Friday, 29th May, 2020</p>
-                                    </div>
+    </div>
+    <div class="lobby-section">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12 col-lg-4 col-xl-3 col-sm-12 col-12 px-0">
+                    <div class="leftside-WebinarSection">
+                        <div class="schedule-details">
+                            <div class="schedule">
+                                <p>Schedule</p>
+                                <div class="d-flex date-holder">
+                                    <img src="../../../assets/images/calender.svg" alt="">
+                                    <p>Friday, 29th May, 2020</p>
                                 </div>
-                                <div class="event-date-details">
-                                    <div class="event-date-section" *ngFor="let date of dates"
-                                        (click)="clickActiveClass(date.name)">
-                                        <div class="event-date-day-section">
-                                            <p class="event-day">{{ date.name }}</p>
-                                        </div>
-                                        <div class="event-date-month-section"
-                                            [ngClass]="{'event-active-date':date.name == activeDate}">
-                                            <p class="event-date">{{ date.date }}</p>
-                                            <p class="event-month">{{date.month}}</p>
-                                        </div>
-                                        <div *ngIf="clickActive && (date.name == activeDate)"
-                                            class="fa fa-sort-down arrowIcon">
-                                        </div>
+                            </div>
+                            <div class="event-date-details">
+                                <div class="event-date-section" *ngFor="let date of dates"
+                                    (click)="clickActiveClass(date.name)">
+                                    <div class="event-date-day-section">
+                                        <p class="event-day">{{ date.name }}</p>
                                     </div>
-                                </div>
-    
-                                <div class="event-stepper">
-                                    <div id="list-example" class="list-group">
-                                        <!-- <div *ngFor="let Webinar of Schedule_Details.webinars">
-                                            <div [ngClass]="checkActiveClass()"
-                                                class="list-group-item list-group-item-action event-stepper-list">
-                                                <div class="bullet-stepper ">
-                                                    <div class="v-stepper">
-                                                        <div class="circle"></div>
-                                                        <div class="line"></div>
-                                                    </div>
-                                                </div>
-                                                <div class="session-hourly-section">
-                                                    <div class="session-timming-details">
-                                                        <p>{{Webinar.start_time}} -
-                                                            {{Webinar.end_time}}</p>
-                                                    </div>
-                                                    <div class="session-title-details">
-                                                        <p>{{Webinar.title}}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div> -->
-                                        <ng-container *ngIf="Schedule_Details">
-                                            <div class="list-group-item list-group-item-action event-stepper-list session-active"
-                                                *ngFor="let Webinar of Schedule_Details.sessions">
-                                                <div class="bullet-stepper completed" [ngClass]="checkActiveClass()">
-                                                    <div class="v-stepper">
-                                                        <div class="circle"></div>
-                                                        <div class="line"></div>
-                                                    </div>
-                                                </div>
-                                                <div class="session-hourly-section">
-                                                    <div class="d-flex justify-content-between session-timming-details">
-                                                        <p>{{Webinar.start_time}} -
-                                                            {{Webinar.end_time}}</p>
-                                                    </div>
-                                                    <div class="session-title-details">
-                                                        <p>{{Webinar.title}}</p>
-                                                        <div class="d-flex justify-content-between panelist-popover">
-                                                            <p class="pitch-presentation">Pitch presesntation</p>
-                                                            <button type="button" data-container="body" class="btn view-details"
-                                                                *ngIf="Webinar.teams.length > 0 || Webinar.panellists.length > 0"
-                                                                [ngbPopover]="menu" popoverClass="my-custom-class">View
-                                                                Details</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <ng-template #menu>
-                                                    <!-- <div class="team">
-                                                        <p>{{Webinar.title}} </p>
-                                                        <p>{{Webinar.description}}</p>
-                                                    </div> -->
-                                                    <ng-container *ngIf="Webinar.teams">
-                                                        <div class="team" *ngFor="let team of Webinar.teams">
-                                                            <span class="team-title">{{team.title}} </span>
-                                                            <span class="team-name">{{team.team_name}}</span>
-                                                        </div>
-                                                    </ng-container>
-    
-                                                    <ng-container *ngIf="Webinar.panellists.length > 0">
-                                                         <span class="panelist">Panelist</span> 
-                                                        <ul class="team pl-3">
-                                                            <li *ngFor="let panellist of Webinar.panellists">
-    
-                                                                {{panellist.full_name}} - {{panellist.designation}},
-                                                                {{panellist.organization}}</li>
-                                                        </ul>
-    
-                                                    </ng-container>
-                                                </ng-template>
-    
-                                            </div>
-                                        </ng-container>
-                                        
+                                    <div class="event-date-month-section"
+                                        [ngClass]="{'event-active-date':date.name == activeDate}">
+                                        <p class="event-date">{{ date.date }}</p>
+                                        <p class="event-month">{{date.month}}</p>
+                                    </div>
+                                    <div *ngIf="clickActive && (date.name == activeDate)"
+                                        class="fa fa-sort-down arrowIcon">
                                     </div>
                                 </div>
                             </div>
-                            <button class="btn btn-session" (click)="downloadPdf()" id="lobby-download-brochure"><img class="mr-2"
-                                    src="../../../assets/images/events-page/download-icon.svg" alt="">Organizer
-                                Detail</button>
-                        </div>
-                    </div>
-    
-                    <div class="col-md-12 col-lg-8 col-xl-9 col-sm-12 col-12 px-0">
-                        <div class="rightside-WebinarSection">
-                            <!-- <div class="bg-image">
-                                <img src="assets/images/lobby-bg.png" class="img-fluid" alt="">
-                            </div> -->
-                            <div class="slider">
-                                <div id="carouselExampleIndicators" class="carousel slide slider-img" data-ride="carousel">
-                                    <div class="carousel-inner">
-                                        <div class="carousel-item active">
-                                            <img class="d-none d-lg-block w-100" src="assets/images/lobby-banner1.png"
-                                                alt="First slide">
-                                            <img class="d-block d-lg-none w-100" src="assets/images/lobby-banner1-mobi.jpg"
-                                                alt="First slide">
-                                        </div>
-                                        <div class="carousel-item sponsors-video" data-toggle="modal"
-                                            data-target="#exampleModalLong">
-                                            <img class="d-none d-lg-block w-100" src="assets/images/lobby-banner2.png"
-                                                alt="Second slide">
-                                            <img class="d-block d-lg-none w-100" src="assets/images/lobby-banner2-mobi.jpg"
-                                                alt="First slide">
-                                            <img src="../../../assets/images/play.svg" class="play-icon img-fluid" alt="">
-                                        </div>
-                                        <!-- Modal -->
-                                        <div class="modal fade sponsor-modal" id="exampleModalLong" tabindex="-1"
-                                            role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
-                                            <div class="modal-dialog" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <button type="button" class="close" data-dismiss="modal"
-                                                            aria-label="Close">
-                                                            <i class="material-icons">close</i>
-                                                        </button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <iframe src="https://www.youtube.com/embed/2636eRaNtO4"
-                                                            frameborder="0"
-                                                            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                                                            allowfullscreen></iframe>
+
+                            <div class="event-stepper">
+                                <div id="list-example" class="list-group">
+                                    <ng-container *ngIf="Schedule_Details">
+                                        <div class="list-group-item list-group-item-action event-stepper-list session-active"
+                                            *ngFor="let Webinar of Schedule_Details.sessions">
+                                            <div class="bullet-stepper completed" [ngClass]="checkActiveClass()">
+                                                <div class="v-stepper">
+                                                    <div class="circle"></div>
+                                                    <div class="line"></div>
+                                                </div>
+                                            </div>
+                                            <div class="session-hourly-section">
+                                                <div class="d-flex justify-content-between session-timming-details">
+                                                    <p>{{Webinar.start_time}} -
+                                                        {{Webinar.end_time}}</p>
+                                                </div>
+                                                <div class="session-title-details">
+                                                    <p>{{Webinar.title}}</p>
+                                                    <div class="d-flex justify-content-between panelist-popover">
+                                                        <p class="pitch-presentation">Pitch presesntation</p>
+                                                        <button type="button" data-container="body"
+                                                            class="btn view-details"
+                                                            *ngIf="Webinar.teams.length > 0 || Webinar.panellists.length > 0"
+                                                            [ngbPopover]="menu" [autoClose]="'outside'"
+                                                            popoverClass="my-custom-class">View
+                                                            Details</button>
                                                     </div>
                                                 </div>
                                             </div>
+                                            <ng-template #menu>
+                                                <ng-container *ngIf="Webinar.teams">
+                                                    <div class="team" *ngFor="let team of Webinar.teams">
+                                                        <span class="team-title">{{team.title}} </span>
+                                                        <span class="team-name">{{team.team_name}}</span>
+                                                    </div>
+                                                </ng-container>
+                                                <ng-container *ngIf="Webinar.panellists.length > 0">
+                                                    <span class="panelist">Panelist</span>
+                                                    <ul class="team pl-3">
+                                                        <li *ngFor="let panellist of Webinar.panellists">
+
+                                                            {{panellist.full_name}} - {{panellist.designation}},
+                                                            {{panellist.organization}}</li>
+                                                    </ul>
+                                                </ng-container>
+                                            </ng-template>
                                         </div>
-                                        <div class="carousel-item">
-                                            <img class="d-none d-lg-block w-100" src="assets/images/lobby-banner3.png"
-                                                alt="Third slide">
-                                            <img class="d-block d-lg-none w-100" src="assets/images/lobby-banner3-mobi.jpg"
-                                                alt="First slide">
+                                    </ng-container>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-session" (click)="downloadPdf()" id="lobby-download-brochure"><img
+                                class="mr-2" src="../../../assets/images/events-page/download-icon.svg" alt="">Organizer
+                            Detail</button>
+                    </div>
+                </div>
+
+                <div class="col-md-12 col-lg-8 col-xl-9 col-sm-12 col-12 px-0">
+                    <div class="rightside-WebinarSection">
+                        <div class="slider">
+                            <div id="carouselExampleIndicators" class="carousel slide slider-img" data-ride="carousel">
+                                <div class="carousel-inner">
+                                    <div class="carousel-item active">
+                                        <img class="d-none d-lg-block w-100" src="assets/images/lobby-banner1.png"
+                                            alt="First slide">
+                                        <img class="d-block d-lg-none w-100" src="assets/images/lobby-banner1-mobi.jpg"
+                                            alt="First slide">
+                                    </div>
+                                    <div class="carousel-item sponsors-video" data-toggle="modal"
+                                        data-target="#exampleModalLong">
+                                        <img class="d-none d-lg-block w-100" src="assets/images/lobby-banner2.png"
+                                            alt="Second slide">
+                                        <img class="d-block d-lg-none w-100" src="assets/images/lobby-banner2-mobi.jpg"
+                                            alt="First slide">
+                                        <img src="../../../assets/images/play.svg" class="play-icon img-fluid" alt="">
+                                    </div>
+                                    <!-- Modal -->
+                                    <div class="modal fade sponsor-modal" id="exampleModalLong" tabindex="-1"
+                                        role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close">
+                                                        <i class="material-icons">close</i>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <iframe src="https://www.youtube.com/embed/2636eRaNtO4"
+                                                        frameborder="0"
+                                                        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                                                        allowfullscreen></iframe>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="custom-nav">
-                                        <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button"
-                                            data-slide="prev">
-                                            <i _ngcontent-jts-c55="" class="material-icons">keyboard_arrow_left</i>
-                                            <span class="sr-only">Previous</span>
-                                        </a>
-                                        <a class="carousel-control-next" href="#carouselExampleIndicators" role="button"
-                                            data-slide="next">
-                                            <i _ngcontent-jts-c55="" class="material-icons">keyboard_arrow_right</i>
-                                            <span class="sr-only">Next</span>
-                                        </a>
+                                    <div class="carousel-item">
+                                        <img class="d-none d-lg-block w-100" src="assets/images/lobby-banner3.png"
+                                            alt="Third slide">
+                                        <img class="d-block d-lg-none w-100" src="assets/images/lobby-banner3-mobi.jpg"
+                                            alt="First slide">
                                     </div>
                                 </div>
-                                <div class="event-details-main">
-                                    <div class="event-details-leftside">
-                                        <div class="event-name">
-                                            <p class="p-event">Event</p>
-                                            <p class="event-title" *ngIf="event_details">{{ event_details.name }}</p>
-                                        </div>
-    
-    
+                                <div class="custom-nav">
+                                    <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button"
+                                        data-slide="prev">
+                                        <i _ngcontent-jts-c55="" class="material-icons">keyboard_arrow_left</i>
+                                        <span class="sr-only">Previous</span>
+                                    </a>
+                                    <a class="carousel-control-next" href="#carouselExampleIndicators" role="button"
+                                        data-slide="next">
+                                        <i _ngcontent-jts-c55="" class="material-icons">keyboard_arrow_right</i>
+                                        <span class="sr-only">Next</span>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="event-details-main">
+                                <div class="event-details-leftside">
+                                    <div class="event-name">
+                                        <p class="p-event">Event</p>
+                                        <p class="event-title" *ngIf="event_details">{{ event_details.name }}</p>
                                     </div>
-                                    <div class="event-details-rightside">
-                                        <p class="p-eventStart">Event Starts In</p>
-                                        <ng-container *ngIf="!enableVideoJoiningButton">
-                                         <ul class="event-timer">
+
+
+                                </div>
+                                <div class="event-details-rightside">
+                                    <p class="p-eventStart">Event Starts In</p>
+                                    <ng-container *ngIf="!enableVideoJoiningButton">
+                                        <ul class="event-timer">
                                             <li>
                                                 <div class="event-timer-days">
                                                     <p class="ETDay">{{ days }}</p>
@@ -245,114 +209,122 @@
                                                     <p class="ETD">Secs</p>
                                                 </div>
                                             </li>
-                                        </ul> 
+                                        </ul>
                                     </ng-container>
-                                        <ng-container *ngIf="enableVideoJoiningButton">
-                                        <button class="btn joinNow" (click)="navigateToMeetinHall()" [disabled]="!enableVideoStreaming"><i
-                                                class="fa fa-user-plus"></i>
+                                    <ng-container *ngIf="enableVideoJoiningButton">
+
+                                        <a routerLink='/speaker-room'>
+                                            <button class="btn joinNow mr-2"><i class="fa fa-user-plus"></i>
+                                                Speaker Lounge
+                                            </button>
+                                        </a>
+
+                                        <button class="btn joinNow" (click)="navigateToMeetinHall()"
+                                            [disabled]="!enableVideoStreaming"><i class="fa fa-user-plus"></i>
                                             Join Now</button>
-                                            <p [hidden]="enableVideoStreaming" class="begin-text">The event will begin in sometime..</p>
-                                            </ng-container>
-                                    </div>
+                                        <p [hidden]="enableVideoStreaming" class="begin-text">The event will begin in
+                                            sometime..</p>
+                                    </ng-container>
                                 </div>
-                                <div class="sponsors-section">
-                                    <p class="sponsers-stall">Partner Zone</p>
-                                    <div class="sponsors-stall-logos">
-                                        <div class="sponsor-logo">
-                                            <p>Presenting Partner</p>
-                                            <div class="logo-icon">
-                                                <img src="assets/images/sponsors/Logos-01.svg" alt="">
-                                            </div>
+                            </div>
+                            <div class="sponsors-section">
+                                <p class="sponsers-stall">Partner Zone</p>
+                                <div class="sponsors-stall-logos">
+                                    <div class="sponsor-logo">
+                                        <p>Presenting Partner</p>
+                                        <div class="logo-icon">
+                                            <img src="assets/images/sponsors/Logos-01.svg" alt="">
                                         </div>
-                                        <div class="sponsor-logo">
-                                            <p>Co-Presented By</p>
-                                            <div class="logo-icon">
-                                                <a routerLink="/home/sponsors/wadhwani" target="_blank">
-                                                    <img src="assets/images/sponsors/Logos-02.svg" alt="">
-                                                </a>
-                                            </div>
+                                    </div>
+                                    <div class="sponsor-logo">
+                                        <p>Co-Presented By</p>
+                                        <div class="logo-icon">
+                                            <a routerLink="/home/sponsors/wadhwani" target="_blank">
+                                                <img src="assets/images/sponsors/Logos-02.svg" alt="">
+                                            </a>
                                         </div>
-                                        <div class="sponsor-logo">
-                                            <p>Undaunted Partner</p>
-                                            <div class="logo-icon">
-                                                <img src="assets/images/sponsors/Logos-03.svg" alt="">
-                                            </div>
+                                    </div>
+                                    <div class="sponsor-logo">
+                                        <p>Undaunted Partner</p>
+                                        <div class="logo-icon">
+                                            <img src="assets/images/sponsors/Logos-03.svg" alt="">
                                         </div>
-                                        <div class="sponsor-logo">
-                                            <p>Knowledge Partner</p>
-                                            <div class="logo-icon">
-                                                <a routerLink="/home/sponsors/oddup" target="_blank">
-                                                    <img src="assets/images/sponsors/Logos-04.svg" alt="">
-                                                </a>
-                                            </div>
+                                    </div>
+                                    <div class="sponsor-logo">
+                                        <p>Knowledge Partner</p>
+                                        <div class="logo-icon">
+                                            <a routerLink="/home/sponsors/oddup" target="_blank">
+                                                <img src="assets/images/sponsors/Logos-04.svg" alt="">
+                                            </a>
                                         </div>
-                                        <div class="sponsor-logo">
-                                            <p>Software Partner</p>
-                                            <div class="logo-icon">
-                                                <a routerLink="/home/sponsors/zoho" target="_blank">
-                                                    <img src="assets/images/sponsors/Logos-05.svg" alt="">
-                                                </a>
-                                            </div>
+                                    </div>
+                                    <div class="sponsor-logo">
+                                        <p>Software Partner</p>
+                                        <div class="logo-icon">
+                                            <a routerLink="/home/sponsors/zoho" target="_blank">
+                                                <img src="assets/images/sponsors/Logos-05.svg" alt="">
+                                            </a>
                                         </div>
-                                        <div class="sponsor-logo">
-                                            <p>Enabling Partner</p>
-                                            <div class="logo-icon">
-                                                <img src="assets/images/sponsors/Logos-06.svg" alt="">
-                                            </div>
+                                    </div>
+                                    <div class="sponsor-logo">
+                                        <p>Enabling Partner</p>
+                                        <div class="logo-icon">
+                                            <img src="assets/images/sponsors/Logos-06.svg" alt="">
                                         </div>
-                                        <div class="sponsor-logo">
-                                            <p>Process Partner</p>
-                                            <div class="logo-icon">
-                                                <img src="assets/images/sponsors/Logos-07.svg" alt="">
-                                            </div>
+                                    </div>
+                                    <div class="sponsor-logo">
+                                        <p>Process Partner</p>
+                                        <div class="logo-icon">
+                                            <img src="assets/images/sponsors/Logos-07.svg" alt="">
                                         </div>
-                                        <div class="sponsor-logo">
-                                            <p>Supporting Partner</p>
-                                            <div class="logo-icon">
-                                                <img src="assets/images/sponsors/Logos-08.svg" alt="">
-                                            </div>
+                                    </div>
+                                    <div class="sponsor-logo">
+                                        <p>Supporting Partner</p>
+                                        <div class="logo-icon">
+                                            <img src="assets/images/sponsors/Logos-08.svg" alt="">
                                         </div>
                                     </div>
                                 </div>
                             </div>
-    
                         </div>
+
                     </div>
                 </div>
             </div>
-    
-            <div class="schedule-button d-block d-lg-none">
-                <button class="btn" (click)="navigatetoscedule()"><img class="mr-2"
-                        src="../../../assets/images/calender.svg" alt="">View Schedule</button>
-            </div>
-    
         </div>
-    
-        <!-- footer section -->
-    
-        <section class="footer-holder mt-0">
-            <div class="container-fluid px-0">
-                <div class="footer d-md-flex d-block justify-content-md-between align-items-md-center">
-                    <div class="logo-icon">
-                        <img src="../../assets/images/events-page/logo.svg" alt="">
+
+        <div class="schedule-button d-block d-lg-none">
+            <button class="btn" (click)="navigatetoscedule()"><img class="mr-2"
+                    src="../../../assets/images/calender.svg" alt="">View Schedule</button>
+        </div>
+
+    </div>
+
+    <!-- footer section -->
+
+    <section class="footer-holder mt-0">
+        <div class="container-fluid px-0">
+            <div class="footer d-md-flex d-block justify-content-md-between align-items-md-center">
+                <div class="logo-icon">
+                    <img src="../../assets/images/events-page/logo.svg" alt="">
+                </div>
+                <a class="footer-logo" href="https://weevirtuall.com/" target="_blank">
+                    <div class="powered-by d-flex align-items-center">
+                        <p class="mb-0 mr-2">Powered by</p>
+                        <img src="../../assets/images/events-page/footer-logo.svg" alt="">
                     </div>
-                    <a class="footer-logo" href="https://weevirtuall.com/" target="_blank">
-                        <div class="powered-by d-flex align-items-center">
-                            <p class="mb-0 mr-2">Powered by</p>
-                            <img src="../../assets/images/events-page/footer-logo.svg" alt="">
-                        </div>
-                    </a>
-                    <div class="contact-details">
-                        <div class="info d-flex">
-                            <img src="../../assets/images/events-page/mail.svg" alt="">
-                            <a href="mailto:hello@weevirtuall.com">hello@weevirtuall.com</a>
-                        </div>
-                        <div class="info d-flex">
-                            <img src="../../assets/images/events-page/phone.svg" alt="">
-                            <a href="tel:+91 9769340402">+91 9769340402</a>
-                        </div>
+                </a>
+                <div class="contact-details">
+                    <div class="info d-flex">
+                        <img src="../../assets/images/events-page/mail.svg" alt="">
+                        <a href="mailto:hello@weevirtuall.com">hello@weevirtuall.com</a>
+                    </div>
+                    <div class="info d-flex">
+                        <img src="../../assets/images/events-page/phone.svg" alt="">
+                        <a href="tel:+91 9769340402">+91 9769340402</a>
                     </div>
                 </div>
             </div>
-        </section>
-    </div>
+        </div>
+    </section>
+</div>
