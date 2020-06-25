@@ -183,6 +183,7 @@
                                 style="opacity: 0.4;" alt=""></button>
                         <button *ngIf='!(disabledIcon && disabledIcon2)'><img
                                 src="../../../assets/images/icons/video-recording.svg"
+                                (click)='startRecording()'
                                 alt=""></button>
                         <button class="btn btn-outline-primary" id="dropdownConfig"
                             ngbDropdownToggle mat-raised-button matTooltip="Recording"></button>
