@@ -93,18 +93,18 @@
                 }">
 
                 <div class="remote-calls" [id]="remote.divId" >
-                  <div *ngIf="userType.type == 'admin'" class="admin_mute_control">
-                    <button *ngIf="!remoteAudioMuted" class="btn btn-primary" (click)="muteRemoteAudio(i)">
+                  <div *ngIf="userType.type == 'admin' && remote.stream!='' " class="admin_mute_control">
+                    <button *ngIf="!remote.remoteAudioMuted" class="btn btn-primary" (click)="muteRemoteAudio(i)">
                       <i class="material-icons">volume_off</i>
                     </button>
-                    <button *ngIf="remoteAudioMuted" class="btn btn-primary" (click)="unRemoteMuteAudio(i)">
+                    <button *ngIf="remote.remoteAudioMuted" class="btn btn-primary" (click)="unRemoteMuteAudio(i)">
                       <i class="material-icons">volume_up</i>
                     </button>
     
-                    <button *ngIf="!remoteVideoMuted" class="btn btn-secondary" (click)="muteRemoteVideo(i)">
+                    <button *ngIf="!remote.remoteVideoMuted" class="btn btn-secondary" (click)="muteRemoteVideo(i)">
                       <i class="material-icons">videocam_off</i>
                     </button>
-                    <button *ngIf="remoteVideoMuted" class="btn btn-secondary" (click)="unMuteRemoteVideo(i)">
+                    <button *ngIf="remote.remoteVideoMuted" class="btn btn-secondary" (click)="unMuteRemoteVideo(i)">
                       <i class="material-icons">videocam</i>
                     </button>
                   </div>
@@ -146,12 +146,14 @@
                   </button>
                   <span *ngIf="userType.type == 'admin'" class="dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                      <a  class="dropdown-item">Mute All</a>
+                      <a  class="dropdown-item" (click)="muteAll()">Mute All</a>
+                      <a  class="dropdown-item" (click)="unMuteAll()">UnMute All</a>
                     </div>
                   </span>
                   <span *ngIf="userType.type == 'moderator'" class="dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                      <a  class="dropdown-item">Mute All</a>
+                      <a  class="dropdown-item" (click)="muteAll()">Mute All</a>
+                      <a  class="dropdown-item" (click)="unMuteAll()">UnMute All</a>
                     </div>
                   </span>
                   </div>
@@ -217,7 +219,7 @@
                   {{ connected ? "In event" : "Join event" }}
                 </button> -->
                 
-                <button class="btn btn-danger" (click)="leave()">
+                <button class="btn btn-danger" (click)="navigateToSessionRoom()" [disabled]="!enableSessionStreaming">
                   Join Session Room
                 </button>
 
@@ -677,10 +679,10 @@
                       <div id='slide-toggle' class="room-control-wrapper white-bg set-min-height" [(ngModel)]="selectuserType" name="selectusertype" (change)="allowUserByType()">
                           <h3>Room Controls</h3>
                           <div class="room-controls d-flex flex-column">
-                              <mat-slide-toggle>Speaker Lounge</mat-slide-toggle>
-                              <mat-slide-toggle>Join Now</mat-slide-toggle>
-                              <mat-slide-toggle>Join Session Room</mat-slide-toggle>
-                              <mat-slide-toggle>Attendee Count</mat-slide-toggle>
+                              <mat-slide-toggle [checked]="enableJoinSpeakerLoungeToggle" (change)="handleRoomControl($event, 'speaker-lounge')">Speaker Lounge</mat-slide-toggle>
+                              <mat-slide-toggle [checked]="enableJoinNowToggle" (change)="handleRoomControl($event, 'join-now')">Join Now</mat-slide-toggle>
+                              <mat-slide-toggle [checked]="enableSessionStreaming" (change)="handleRoomControl($event, 'join-session-room')">Join Session Room</mat-slide-toggle>
+                              <mat-slide-toggle [checked]="enableAttendeeCountToggle" (change)="handleRoomControl($event, 'attendee-count')">Attendee Count</mat-slide-toggle>
                           </div>
                       </div>
                   </div>
@@ -755,30 +757,30 @@
 
                           <div class="set-min-height">
                               <div class="d-flex justify-content-start align-items-center pl-4 ">
-                                <ng-container *ngFor="let remote of remoteCalls; let i = index">
+                                <ng-container *ngFor="let remote of remoteSessionCalls; let i = index">
                                   <div class="mb-30" [ngClass]="{
-                                      'col-md-12 single-video': remoteCalls.length == 1,
-                                      'col-md-6 two-video': remoteCalls.length == 2,
+                                      'col-md-12 single-video': remoteSessionCalls.length == 1,
+                                      'col-md-6 two-video': remoteSessionCalls.length == 2,
                                       'col-md-5 three-video':
-                                        remoteCalls.length == 3 || remoteCalls.length == 4,
+                                      remoteSessionCalls.length == 3 || remoteSessionCalls.length == 4,
                                       'col-md-4 four-video':
-                                        remoteCalls.length == 5 || remoteCalls.length == 6,
-                                      'col-md-3 five-video': remoteCalls.length >= 7
+                                      remoteSessionCalls.length == 5 || remoteSessionCalls.length == 6,
+                                      'col-md-3 five-video': remoteSessionCalls.length >= 7
                                     }">
                     
                                     <div class="remote-calls" [id]="remote.divId" >
-                                      <div *ngIf="userType.type == 'admin'" class="admin_mute_control">
-                                        <button *ngIf="!remoteAudioMuted" class="btn btn-primary" (click)="muteRemoteAudio(i)">
+                                      <div *ngIf="userType.type == 'admin' && remote.stream!='' " class="admin_mute_control">
+                                        <button *ngIf="!remote.remoteAudioMuted" class="btn btn-primary" (click)="muteRemoteSessionAudio(i)">
                                           <i class="material-icons">volume_off</i>
                                         </button>
-                                        <button *ngIf="remoteAudioMuted" class="btn btn-primary" (click)="unRemoteMuteAudio(i)">
+                                        <button *ngIf="remote.remoteAudioMuted" class="btn btn-primary" (click)="unRemoteMuteSessionAudio(i)">
                                           <i class="material-icons">volume_up</i>
                                         </button>
                         
-                                        <button *ngIf="!remoteVideoMuted" class="btn btn-secondary" (click)="muteRemoteVideo(i)">
+                                        <button *ngIf="!remote.remoteVideoMuted" class="btn btn-secondary" (click)="muteRemoteSessionVideo(i)">
                                           <i class="material-icons">videocam_off</i>
                                         </button>
-                                        <button *ngIf="remoteVideoMuted" class="btn btn-secondary" (click)="unMuteRemoteVideo(i)">
+                                        <button *ngIf="remote.remoteVideoMuted" class="btn btn-secondary" (click)="unMuteRemoteSessionVideo(i)">
                                           <i class="material-icons">videocam</i>
                                         </button>
                                       </div>
