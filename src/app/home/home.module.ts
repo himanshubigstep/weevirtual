@@ -35,8 +35,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatRadioModule } from '@angular/material/radio';
 import { CountdownModule } from 'ngx-countdown';
-import { ProgressComponent } from './meeting-hall/dailog/meeting-hall-dailog/progress/progress.component';
-import { DndDirective } from './meeting-hall/dailog/meeting-hall-dailog/directives/dnd.directive';
 
 
 const agoraConfig: AgoraConfig = {
@@ -61,9 +59,7 @@ const agoraConfig: AgoraConfig = {
     ScreenShareComponent,
     MobileChatComponent,
     MeetingHallDailogComponent,
-    SessionRoomComponent,
-    DndDirective,
-    ProgressComponent
+    SessionRoomComponent
   ],
   imports: [
     CommonModule,

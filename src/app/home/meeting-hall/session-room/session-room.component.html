@@ -8,6 +8,7 @@
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
               <li class="breadcrumb-item active" aria-current="page">Lobby</li>
+              <li class="breadcrumb-item active" aria-current="page">Speaker Room</li>
               <li class="breadcrumb-item active" aria-current="page">Session Room</li>
             </ol>
           </nav>
@@ -148,48 +149,32 @@
                   </button>
                 </div>
 
-                                
+                <button *ngIf="!audioMuted" class="btn btn-primary" (click)="muteAudio()">
+                  <i class="material-icons">volume_off</i>
+                </button>
+                <button *ngIf="audioMuted" class="btn btn-primary" (click)="unMuteAudio()">
+                  <i class="material-icons">volume_up</i>
+                </button>
 
-                <div class="mic_btn_on_off">
-                  <button *ngIf="!audioMuted" class="btn btn-primary normal-icon-btn" (click)="muteAudio()">
-                    <i class="material-icons">mic_off</i>
-                  </button>
-                  <button *ngIf="audioMuted" class="btn btn-primary normal-icon-btn" (click)="unMuteAudio()">
-                    <i class="material-icons">mic</i>
-                  </button>
-                  <span *ngIf="userType.type == 'admin'" class="dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                      <a  class="dropdown-item" (click)="muteAll()">Mute All</a>
-                      <a  class="dropdown-item" (click)="unMuteAll()">UnMute All</a>
-                    </div>
-                  </span>
-                  <span *ngIf="userType.type == 'moderator'" class="dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                      <a  class="dropdown-item" (click)="muteAll()">Mute All</a>
-                      <a  class="dropdown-item" (click)="unMuteAll()">UnMute All</a>
-                    </div>
-                  </span>
-                  </div>
+                <button *ngIf="!videoMuted" class="btn btn-primary" (click)="muteVideo()">
+                  <i class="material-icons">videocam_off</i>
+                </button>
+                <button *ngIf="videoMuted" class="btn btn-primary" (click)="unMuteVideo()">
+                  <i class="material-icons">videocam</i>
+                </button>
 
-                  <button *ngIf="!videoMuted" class="btn btn-primary normal-icon-btn" (click)="muteVideo()">
-                    <i class="material-icons">videocam_off</i>
+                <div *ngIf="userType.type !== 'attendee'">
+                  <button *ngIf="!screenShare" class="btn btn-primary" (click)="shareScreen()">
+                   <i class="material-icons">screen_share</i>
                   </button>
-                  <button *ngIf="videoMuted" class="btn btn-primary normal-icon-btn" (click)="unMuteVideo()">
-                    <i class="material-icons">videocam</i>
+                  <button *ngIf="screenShare" class="btn btn-primary" (click)="removeScreenShares()">
+                    <i class="material-icons">stop_screen_share</i>
                   </button>
+                </div>
 
-                  <div *ngIf="userType.type !== 'attendee'">
-                    <button *ngIf="!screenShare" class="btn btn-primary normal-icon-btn" (click)="shareScreen()">
-                     <i class="material-icons">screen_share</i>
-                    </button>
-                    <button *ngIf="screenShare" class="btn btn-primary normal-icon-btn" (click)="removeScreenShares()">
-                      <i class="material-icons">stop_screen_share</i>
-                    </button>
-                  </div>
-
-                  <button class="btn btn-primary" (click)="openFullscreen()">
-                    <i class="material-icons">fullscreen</i>
-                  </button>
+                <button class="btn btn-primary" (click)="openFullscreen()">
+                  <i class="material-icons">fullscreen</i>
+                </button>
 
                 <!-- <button class="btn btn-primary" (click)="join()">
                   {{ connected ? "In event" : "Join event" }}
