@@ -22,8 +22,6 @@ import { MeetingHallDailogComponent } from "src/app/home/meeting-hall/dailog/mee
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { NgbDropdownConfig } from '@ng-bootstrap/ng-bootstrap';
 import { HttpService } from 'src/app/shared/services/http.service';
-import { RecordingService } from '../../shared/services/recording.service';
-import { environment } from "../../../environments/environment";
 
 declare var $: any;
 
@@ -46,8 +44,6 @@ export class MeetingHallComponent implements OnInit {
   private rtmChannel;
   private channelEmitter;
   private isReady ;
-  recordingSid;
-  recordingResourceId;
 
   panellistUsersList = [];
   totalUsersList = [];
@@ -76,7 +72,7 @@ export class MeetingHallComponent implements OnInit {
   /**
    * App ID used when connecting to the Agora.io servers
    */
-  appId = environment.agoraAppId;
+  appId = "bc77dbe489d5466bb0084e0ff147ab9f";
   /**
    * Channel (meeting room) within the Agora app to join
    */
@@ -118,7 +114,6 @@ export class MeetingHallComponent implements OnInit {
     public  chatServeice: ChatService,
     public  httpservice: HttpService,
     private eventService: EventService,
-    private recordingService: RecordingService,
     private router: Router,
     private title: Title,
     private meta: Meta,
@@ -131,8 +126,6 @@ export class MeetingHallComponent implements OnInit {
 
     this.question = new Chatbox();
     this.uid = this.userDetails.user_details.id; //Math.floor(Math.random() * 100);
-    this.recordingSid = localStorage.getItem('recordingSid') || null;
-    this.recordingResourceId = localStorage.getItem('recordingResourceId') || null;
 
     this.client = this.agoraService.createClient({
       mode: "live",
@@ -290,48 +283,6 @@ export class MeetingHallComponent implements OnInit {
     else {
       this.disabledIcon2 = true;
     }
-  }
-
-  startRecording() {
-    if( this.recordingSid ) {
-      this.stopRecording();
-      return;
-    }
-    this.recordingService.acquire(this.channel, this.uid, this.appId ).subscribe(response => {
-      if (response.resourceId) {
-        this.recordingResourceId = response.resourceId;
-        localStorage.setItem('recordingResourceId', response.resourceId);
-        this.recordingService.start(this.channel, this.uid, this.appId, response.resourceId, this.individualHd, this.individualHdPlus ).subscribe(response => {
-          if (response?.sid) {
-            this.recordingSid = response.sid;
-            localStorage.setItem('recordingSid', response.sid);
-          }
-        }, (error => {
-          console.log(error)
-          // Need to handle error
-        }));
-      }
-    }, (error => {
-      console.log(error)
-      // Need to handle error
-    }));
-  }
-
-  stopRecording() {
-    this.recordingService.stop(this.channel, this.uid, this.appId, this.recordingResourceId, this.recordingSid).subscribe(response => {
-      if (response?.sid) {
-        localStorage.removeItem('recordingSid');
-        localStorage.removeItem('recordingResourceId');
-        this.recordingSid = null;
-        this.recordingResourceId = null;
-      }
-    }, (error => {
-      console.log(error)
-      localStorage.removeItem('recordingSid');
-      localStorage.removeItem('recordingResourceId');
-      this.recordingSid = null;
-      this.recordingResourceId = null;
-    }));
   }
 
   // SwapView
