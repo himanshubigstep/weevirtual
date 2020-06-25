@@ -53,11 +53,12 @@ export class SessionRoomComponent implements OnInit {
   /**
    * Channel (meeting room) within the Agora app to join
    */
-  channel = "123456";
+  channel = "sessionRoom";
   /**
    * Generated user ID that is attached to the local client when joining a meeting room
    */
   uid: number;
+  screenClientJoined = false;
 
   /**
    * All the IDs of other users that have joined the call
@@ -98,18 +99,20 @@ export class SessionRoomComponent implements OnInit {
     this.uid = this.userDetails.user_details.id; //Math.floor(Math.random() * 100);
 
     this.client = this.agoraService.createClient({
-      mode: "rtc",
+      mode: "live",
       codec: "h264",
     });
-    this.assignClientHandlers();
+    //this.assignClientHandlers();
 
     this.screenClient = this.agoraService.createClient({
       mode: "rtc",
       codec: "vp8",
     });
-    this.assignScreenClientHandlers();
+    //this.assignScreenClientHandlers();
+    
+    this.pauseResumeRemoteStreams()
 
-    this.join();
+    //this.join();
 
     let uType:any = localStorage.getItem('currentUser');
     this.userType = JSON.parse(uType);
@@ -118,7 +121,7 @@ export class SessionRoomComponent implements OnInit {
     // RTM 
     this.isReady = false ;
     this.rtmClient  = AgoraRTM.createInstance(this.appId); 
-    this.rtmChannel = this.rtmClient.createChannel(this.channel);
+    this.rtmChannel = this.rtmClient.createChannel('RTMChannel');
     this.channelEmitter = new EventEmitter();
 
     console.log(this.rtmClient);
@@ -136,31 +139,40 @@ export class SessionRoomComponent implements OnInit {
     this.elem = document.documentElement;
     this.getPanellistUsers(this.userDetails.event_details.id);
 
-    this.client.init(
-      this.appId,
-      () => console.log("Initialized successfully"),
-      () => console.log("Could not initialize")
-    );
+    // this.client.init(
+    //   this.appId,
+    //   () => console.log("Initialized successfully"),
+    //   () => console.log("Could not initialize")
+    // );
 
-    this.screenClient.init(
-      this.appId,
-      () => console.log("screen Initialized successfully"),
-      () => console.log("screen Could not initialize")
-    );
+    // this.screenClient.init(
+    //   this.appId,
+    //   () => console.log("screen Initialized successfully"),
+    //   () => console.log("screen Could not initialize")
+    // );
 
     this.loadCarouselScript();
+
+    this.userRole = (localStorage.getItem("userRole")!=null) ? localStorage.getItem("userRole") : null;
+
+    if(this.userRole == null){
+      this.router.navigate(["/home/lounge/"]);
+    }
 
     if (
       this.userDetails.user_details.user_type != "audience" &&
       this.userDetails.user_details.user_type != "attendee"
     ) {
-      this.screenShareDivID = "agora_remote-screen-" + this.uid;
+      console.log("hlwownstream")
+      this.screenShareDivID = "agora_remote-session-screen-" + this.uid;
       this.remoteCalls.push({
-        divId: "agora_remote-" + this.uid,
+        divId: "agora_remote-session" + this.uid,
         userName: this.userDetails.user_details.name,
         designation: this.userDetails.user_details.designation,
+        stream: '',
+        remoteAudioMuted: false,
+        remoteVideoMuted: false
       });
-      this.userRole = "host";
     }
 
     this.getMeetingChat(this.userDetails.event_details.id);
@@ -173,7 +185,7 @@ export class SessionRoomComponent implements OnInit {
     
   }
 
-openDialog(): void {
+  openDialog(): void {
     const dialogRef = this.dialog.open(MeetingHallDailogComponent, {
       width: '600px',
        //data: {name: this.name, animal: this.animal}
@@ -184,6 +196,197 @@ openDialog(): void {
        //this.animal = result;
      });
    }
+
+   pauseResumeRemoteStreams(){
+
+    if(localStorage.getItem("muteRemoteSessionVideo")!=null && JSON.parse(localStorage.getItem("muteRemoteSessionVideo")).length > 0){
+      this.pauseRemoteVideoStream();
+    }
+
+    if(localStorage.getItem("unMuteRemoteSessionVideo")!=null && JSON.parse(localStorage.getItem("unMuteRemoteSessionVideo")).length > 0){
+      this.resumeRemoteVideoStream();
+    }
+
+    if(localStorage.getItem("muteRemoteSessionAudio")!=null && JSON.parse(localStorage.getItem("muteRemoteSessionAudio")).length > 0){
+      this.pauseRemoteAudioStream();
+    }
+
+    if(localStorage.getItem("unMuteRemoteSessionAudio")!=null && JSON.parse(localStorage.getItem("unMuteRemoteSessionAudio")).length > 0){
+      this.resumeRemoteAudioStream();
+    }
+  } 
+
+  pauseRemoteVideoStream(){
+    console.log("pauseremotesessionvideo")
+    const remoteStreams = this.remoteCalls;
+    for(let i = 0; i<remoteStreams.length; i++){
+      remoteStreams[i].remoteVideoMuted = false
+      if(remoteStreams[i].stream!='' && JSON.parse(localStorage.getItem("muteRemoteSessionVideo")).indexOf(parseInt(remoteStreams[i].stream.getId().split('_session')[0])) > -1 ){
+        console.log("pausesessionvideostream"+remoteStreams[i].stream.getId())
+        remoteStreams[i].stream.muteVideo();
+        remoteStreams[i].remoteVideoMuted = true
+      }
+    }
+    this.remoteCalls = remoteStreams;
+    console.log(this.remoteCalls)
+  }
+  
+  resumeRemoteVideoStream(){
+    console.log("resumeremotesessionvideo")
+    const remoteStreams = this.remoteCalls;
+    for(let i = 0; i<remoteStreams.length; i++){
+      remoteStreams[i].remoteVideoMuted = true
+      if(remoteStreams[i].stream!='' && JSON.parse(localStorage.getItem("unMuteRemoteSessionVideo")).indexOf(parseInt(remoteStreams[i].stream.getId().split('_session')[0])) > -1 ){
+        console.log("resumesessionvideostream"+remoteStreams[i].stream.getId())
+        remoteStreams[i].remoteVideoMuted = false
+        remoteStreams[i].stream.unmuteVideo();
+      }
+    }
+    this.remoteCalls = remoteStreams
+  }
+
+  pauseRemoteAudioStream(){
+    console.log("pauseremotesessionaudio")
+    const remoteStreams = this.remoteCalls;
+    for(let i = 0; i<remoteStreams.length; i++){
+      remoteStreams[i].remoteAudioMuted = false
+      console.log(remoteStreams[i].stream.getId()+"@@")
+      if(remoteStreams[i].stream!='' && JSON.parse(localStorage.getItem("muteRemoteSessionAudio")).indexOf(parseInt(remoteStreams[i].stream.getId().split('_session')[0])) > -1 ){
+        console.log("pausesessionaudiostream"+remoteStreams[i].stream.getId())
+        remoteStreams[i].remoteAudioMuted = true
+        remoteStreams[i].stream.muteAudio();
+      }
+    }
+    this.remoteCalls = remoteStreams
+    console.log(this.remoteCalls)
+  }
+  
+  resumeRemoteAudioStream(){
+    console.log("resumesessionremoteaudio")
+    const remoteStreams = this.remoteCalls;
+    for(let i = 0; i<remoteStreams.length; i++){
+      remoteStreams[i].remoteAudioMuted = true
+      if(remoteStreams[i].stream!='' && JSON.parse(localStorage.getItem("unMuteRemoteSessionAudio")).indexOf(parseInt(remoteStreams[i].stream.getId().split('_session')[0])) > -1 ){
+        console.log("resumesessionaudiostream"+remoteStreams[i].stream.getId())
+        remoteStreams[i].remoteAudioMuted = false
+        remoteStreams[i].stream.unmuteAudio();
+      }
+    }
+    this.remoteCalls = remoteStreams
+  }
+
+  setRemoteStreamAudioVideoMuteUnmute(message){
+
+    if(message == 'muteAll'){ //Mute Audios of all remote streams
+
+      if(localStorage.getItem("muteRemoteAudio")!=null){
+        localStorage.removeItem("muteRemoteAudio");
+      }
+
+      if(localStorage.getItem("unMuteRemoteAudio")!=null){
+        localStorage.removeItem("unMuteRemoteAudio");
+      }
+
+      localStorage.setItem("muteAll", "yes")
+      
+    }
+
+    if(message == 'unMuteAll'){
+
+      if(localStorage.getItem("muteRemoteAudio")!=null){
+        localStorage.removeItem("muteRemoteAudio");
+      }
+
+      if(localStorage.getItem("unMuteRemoteAudio")!=null){
+        localStorage.removeItem("unMuteRemoteAudio");
+      }
+
+      localStorage.setItem("muteAll", "no")
+      
+    }
+
+    if(message.includes('yesmuteRemoteVideo')){ //Mute Remote Video
+
+      const stream_id = parseInt(message.split("@")[1]);
+      let muteVideos = (localStorage.getItem("muteRemoteVideo") != null) ? JSON.parse(localStorage.getItem("muteRemoteVideo")) : []
+
+      if(localStorage.getItem("unMuteRemoteVideo")!=null){
+        //Remove the unmuted stream from mute array
+        let unmuteVideos = JSON.parse(localStorage.getItem("unMuteRemoteVideo"));
+        if (unmuteVideos.indexOf(stream_id) > -1) {
+          unmuteVideos.splice(unmuteVideos.indexOf(stream_id), 1);
+          localStorage.setItem("unMuteRemoteVideo", JSON.stringify(unmuteVideos));
+        } 
+      }
+      
+      (muteVideos.indexOf(stream_id) == -1) ? muteVideos.push(stream_id) : null;
+      localStorage.setItem("muteRemoteVideo", JSON.stringify(muteVideos));
+      
+    }
+
+    if(message.includes('unMuteRemoteVideo')){ // //UnMute Remote Video
+
+      const stream_id = parseInt(message.split("@")[1]);      
+      let unMuteVideos = (localStorage.getItem("unMuteRemoteVideo") != null) ? JSON.parse(localStorage.getItem("unMuteRemoteVideo")) : []
+
+      if(localStorage.getItem("muteRemoteVideo")!=null){
+        //Remove the unmuted stream from mute array
+        let muteVideos = JSON.parse(localStorage.getItem("muteRemoteVideo"));
+        if (muteVideos.indexOf(stream_id) > -1) {
+          muteVideos.splice(muteVideos.indexOf(stream_id), 1);
+          localStorage.setItem("muteRemoteVideo", JSON.stringify(muteVideos));
+        } 
+      }
+      (unMuteVideos.indexOf(stream_id) == -1) ? unMuteVideos.push(stream_id) : null;
+      localStorage.setItem("unMuteRemoteVideo", JSON.stringify(unMuteVideos));
+     
+    }
+
+    //if(localStorage.getItem("muteAll") == null || localStorage.getItem("muteAll") == "no"){
+      if(message.includes('yesmuteRemoteAudio')){ //Mute Remote Audio
+
+        if(localStorage.getItem("muteAll") == "no"){
+          localStorage.removeItem("muteAll");
+        }
+        
+        const stream_id = parseInt(message.split("@")[1]);
+
+        let muteAudios = (localStorage.getItem("muteRemoteAudio") != null) ? JSON.parse(localStorage.getItem("muteRemoteAudio")) : []
+
+        if(localStorage.getItem("unMuteRemoteAudio")!=null){
+          //Remove the unmuted stream from mute array
+          let unmuteAudios = JSON.parse(localStorage.getItem("unMuteRemoteAudio"));
+          if (unmuteAudios.indexOf(stream_id) > -1) {
+            unmuteAudios.splice(unmuteAudios.indexOf(stream_id), 1);
+            localStorage.setItem("unMuteRemoteAudio", JSON.stringify(unmuteAudios));
+          } 
+        }
+
+        (muteAudios.indexOf(stream_id) == -1) ? muteAudios.push(stream_id) : null;
+        localStorage.setItem("muteRemoteAudio", JSON.stringify(muteAudios));
+        
+      }
+    //}
+      
+    if(message.includes('unMuteRemoteAudio')){ // //UnMute Remote Audio
+
+      const stream_id = parseInt(message.split("@")[1]);
+      let unMuteAudios = (localStorage.getItem("unMuteRemoteAudio") != null) ? JSON.parse(localStorage.getItem("unMuteRemoteAudio")) : []
+
+      if(localStorage.getItem("muteRemoteAudio")!=null){
+        let muteAudios = JSON.parse(localStorage.getItem("muteRemoteAudio"));
+        if (muteAudios.indexOf(stream_id) > -1) {
+          muteAudios.splice(muteAudios.indexOf(stream_id), 1);
+          localStorage.setItem("muteRemoteAudio", JSON.stringify(muteAudios));
+        }
+      }
+      
+      (unMuteAudios.indexOf(stream_id) == -1) ? unMuteAudios.push(stream_id) : null;
+      localStorage.setItem("unMuteRemoteAudio", JSON.stringify(unMuteAudios));
+      
+    }
+    
+  }
 
   private assignRtmHandlers(): void{
 
@@ -214,7 +417,10 @@ openDialog(): void {
     // CHANNEL MESSAGE
     this.rtmChannel.on('ChannelMessage', ({ text: message }, senderId) => {
       console.log('ChannelMessage :', message , senderId);
-      this.channelEmitter.emit(`${message}-TO-JOIN`, message);
+
+      this.setRemoteStreamAudioVideoMuteUnmute(message);
+
+      this.channelEmitter.emit(`${message}`, message);
     });
 
   }
@@ -227,21 +433,47 @@ openDialog(): void {
         this.sendChannelMessage('helloworld');
       });
 
-      this.channelEmitter.on(`ALLOW_MODERATOR-TO-JOIN`, function ( {content}) {
+      this.channelEmitter.on(`speaker-lounge-on`, function ( {content}) {
        
-        // ALLOW MODERATOR TO JOIN CALL
+        // ALLOW SPEAKER LOUNGE TO JOIN CALL
+
+        console.log("speakerloungeon");
+        
 
       });
 
-      this.channelEmitter.on(`ALLOW_PANELLIST-TO-JOIN`, function ( {content}) {
+      this.channelEmitter.on(`speaker-lounge-off`, function ( {content}) {
         
-        // ALLOW PANELLIST TO JOIN CALL
+        // DISALLOW SPEAKER LOUNGE TO JOIN CALL
+        console.log("speakerloungeoff");
+      });
+
+      this.channelEmitter.on(`join-now-on`, function ( {content}) {
+       
+        // ALLOW JOIN NOW TO JOIN CALL
+
+        console.log("joinnowon");
+
+      });
+
+      this.channelEmitter.on(`join-now-off`, function ( {content}) {
+        
+        // DISALLOW JOIN NOW TO JOIN CALL
+        console.log("joinnowoff");
         
       });
 
-      this.channelEmitter.on(`ALLOW_ATTENDEE-TO-JOIN`, function ( {content}) {
+      this.channelEmitter.on(`join-session-room-on`, function ( {content}) {
+       
+        // ALLOW SESSION ROOM TO JOIN CALL
+        console.log("joinsessionroomon");
+
+      });
+
+      this.channelEmitter.on(`join-session-room-off`, function ( {content}) {
         
-        // ALLOW ATTENDEE TO JOIN CALL
+        // DISALLOW SESSION ROOM TO JOIN CALL
+        console.log("joinsessionroomoff");
         
       });
   }
@@ -250,7 +482,8 @@ openDialog(): void {
 
     this.rtmClient.login({ token: null, uid: this.uid.toString() } ).then(() => {
       console.log('AgoraRTM client login success');
-      this.sendPeerMessage();
+      
+      this.join()
 
       // JOIN CHANNEL
       this.rtmChannel.join().then(() => {
@@ -299,34 +532,10 @@ openDialog(): void {
 
   }
 
-  private sendPeerMessage(){
-
-    // PEER TO PEER MESSAGE
-    this.rtmClient.sendMessageToPeer({ text: 'test peer message' }, // An RtmMessage object.
-      this.uid.toString(), // The user ID of the remote user.
-    ).then(sendResult => {
-      if (sendResult.hasPeerReceived) {
-
-        console.log('yes peer received');
-        /* Your code for handling the event that the remote user receives the message. */
-
-       } else {
-
-          console.log('not peer received');
-          /* Your code for handling the event that the message is received by the server but the remote user cannot be reached. */
-
-       }
-
-    }).catch(error => {
-        
-        console.log('peer error');
-        /* Your code for handling the event of a message send failure. */
-    });
-
-  }
-
   private assignClientHandlers(): void {
-   
+
+    console.log("hlwassignclient")
+    console.log(ClientEvent)
     this.client.on(ClientEvent.LocalStreamPublished, (evt) => {
       this.published = true;
       console.log("Publish local stream successfully");
@@ -345,6 +554,7 @@ openDialog(): void {
     });
 
     this.client.on(ClientEvent.RemoteStreamAdded, (evt) => {
+      console.log("hlwsubscribe")
       const stream = evt.stream as Stream;
       this.client.subscribe(stream, { audio: true, video: true }, (err) => {
         console.log("Subscribe stream failed", err);
@@ -352,34 +562,56 @@ openDialog(): void {
     });
 
     this.client.on(ClientEvent.RemoteStreamSubscribed, (evt) => {
+      console.log("stream subscribed")
       const stream = evt.stream as Stream;
       const id = this.getRemoteId(stream);
 
       this.totalUsersList.push(id);
       // const selectedObj = true;
+      console.log("hlwcurrentuser")
+      console.log(this.totalUsersList);
+      console.log(this.panellistUsersList)
+      
+      console.log(stream.getId())
       console.log(
         this.panellistUsersList.filter((res) => res.id == stream.getId())
       );
       const selectedObj = this.panellistUsersList.filter(
         (res) => res.id == stream.getId()
       )[0];
-      if (selectedObj) {
+      //if (selectedObj) {
+        console.log("hlwselectedobj")
+        console.log(stream)
+        console.log(selectedObj)
         // this.remoteCalls.push({ divId: id, userName: "full name ", designation: 'developer' });
-        this.remoteCalls.push({
-          divId: id,
-          userName: selectedObj.full_name,
-          designation: selectedObj.designation,
-        });
+        if((typeof this.screenStream== 'undefined') || (stream.getId()!=this.screenStream.getId())){
+          console.log("addremotestream")
+          this.remoteCalls.push({
+            divId: id,
+            // userName: selectedObj.full_name,
+            // designation: selectedObj.designation,
+            userName: "",
+            designation: "",
+            stream: stream,
+            remoteAudioMuted: false,
+            remoteVideoMuted: false,
+          });
+        }
 
         setTimeout(() => stream.play(id), 1000);
-      }
+
+        this.pauseResumeRemoteStreams();
+
+      //}
     });
 
     this.client.on(ClientEvent.RemoteStreamRemoved, (evt) => {
       const stream = evt.stream as Stream;
       if (stream) {
         stream.stop();
-        this.remoteCalls = [];
+        stream.close();
+        this.removeRemoteStream(stream);
+        //this.remoteCalls = [];
         console.log(`Remote stream is removed ${stream.getId()}`);
       }
     });
@@ -387,23 +619,39 @@ openDialog(): void {
     this.client.on(ClientEvent.PeerLeave, (evt) => {
       const stream = evt.stream as Stream;
       if (stream) {
+        console.log(this.remoteCalls)
+        console.log(stream['params'].streamID)
+        //this.destroy();
         stream.stop();
-        this.remoteCalls = this.remoteCalls.filter(
-          (call) => call.divId !== `${this.getRemoteId(stream)}`
-        );
+        stream.close();
+        
+        this.removeRemoteStream(stream);
+
+        const removeClientStreamId = `${this.getRemoteId(stream)}`;
+        
         this.totalUsersList = this.totalUsersList.filter(
-          (call) => call !== `${this.getRemoteId(stream)}`
+          (call) => call !== removeClientStreamId
         );
-        console.log(`${evt.uid} left from this channel`);
+        console.log(`${evt.uid} left from this channel localclient`);
+        console.log(`${this.getRemoteId(stream)}`)
+        console.log("this.remoteCalls")
+        console.log(this.remoteCalls)
       }
     });
+  }
+
+  removeRemoteStream = (stream) => {
+    const removeClientStreamId = `${this.getRemoteId(stream)}`;
+    this.remoteCalls = this.remoteCalls.filter(
+      (call) => call.divId !== removeClientStreamId
+    );
   }
 
   private assignScreenClientHandlers(): void {
    
     this.screenClient.on(ClientEvent.LocalStreamPublished, (evt) => {
-      this.published = true;
-      console.log("Publish local screen stream successfully");
+      //this.published = true;
+      console.log("Publish screen screen stream successfully");
     });
 
     this.screenClient.on(ClientEvent.Error, (error) => {
@@ -422,36 +670,64 @@ openDialog(): void {
       const stream = evt.stream as Stream;
       if (stream) {
         stream.stop();
-        console.log(`${evt.uid} left from this channel`);
+        console.log(`${evt.uid} left from this channel screenclient`);
       }
     });
 
-    //this.screenStream.on("stopScreenSharing", () => {
-    //  shareEnd();
+    // this.screenClient.on(ClientEvent.RemoteStreamSubscribed, (evt) => {
+    //   console.log("session stream subscribed")
+    // });
+
+    this.screenClient.on(ClientEvent.RemoteStreamAdded, (evt) => {
+      var stream = evt.stream;
+      this.screenClient.subscribe(stream);
+    });
+
+    // this.screenClient.on(ClientEvent.RemoteStreamAdded, (evt) => {
+    //   console.log("hlwsessionsubscribe")
+    //   const stream = evt.stream as Stream;
+    //   console.log(stream.getId());
+    //   this.screenClient.subscribe(stream)
+    // });
+
+    // this.screenStream.on("stopScreenSharing", () => {
     //  console.log("Stop Screen Sharing at" + new Date());
-    //});
+    // });
 
   }
 
   join(): void {
     if (!this.connected) {
-      this.localStream = this.agoraService.createStream({
-        streamID: this.uid,
-        audio: true,
-        video: true,
-        screen: false,
-      });
-      this.assignLocalStreamHandlers();
-      this.init();
+      
+      this.client.init(
+        this.appId,
+        () => {
+          console.log("Initialized successfully") 
+          this.client.join(null, this.channel, this.uid+'_session', (uid) => {
+            console.log("User " + uid + " join channel successfully")
 
-      this.client.join(null, this.channel, this.uid);
-      setTimeout(() => {
-        this.publish();
-        this.client.setClientRole(this.userRole, () => {
-          console.log("client role changed");
-        });
-        this.totalUsersList.push("agora_remote-" + this.uid);
-      }, 3000);
+            this.assignClientHandlers()
+
+            this.client.setClientRole(this.userRole, () => {
+              console.log("client role changed");
+            });
+
+            this.localStream = this.agoraService.createStream({
+              streamID: this.uid+'_session',
+              audio: true,
+              video: true,
+              screen: false,
+            });
+
+            this.assignLocalStreamHandlers();
+
+            this.init();
+            
+          });
+        },
+        () => console.log("Could not initialize")
+      );
+    
     } else {
       alert("Aready joined the event ");
     }
@@ -466,12 +742,17 @@ openDialog(): void {
       () => {
         // The user has granted access to the camera and mic.
         console.log("getUserMedia successfully");
+        console.log("this.userRole"+this.userRole)
+        if(this.userRole=='host'){
+          console.log("publishstream")
+          this.publish();
+        }
 
         if (
           this.userDetails.user_details.user_type != "audience" &&
           this.userDetails.user_details.user_type != "attendee"
         ) {
-          this.localStream.play("agora_remote-" + this.uid);
+          this.localStream.play("agora_remote-session" + this.uid);
         }
         this.connected = true;
       },
@@ -501,11 +782,13 @@ openDialog(): void {
       this.client.leave(
         () => {
           console.log("Left the channel successfully");
+          this.unpublish();
+
           this.localStream.stop();
           this.localStream.close();
-          this.connected = false;
-          this.published = false;
-          this.remoteCalls = [];
+          // this.connected = false;
+          // this.published = false;
+          // this.remoteCalls = [];
           this.screenShareDivID = "";
 
           this.router.navigate(["/home/lounge/"]);
@@ -523,34 +806,62 @@ openDialog(): void {
   }
 
   unpublish(): void {
+    this.client.setClientRole('audience');
     this.client.unpublish(this.localStream, (error) => console.error(error));
     this.published = false;
   }
 
   shareScreen(): void {
+
+    console.log("hlwsharescreen")
    
-    var userID = null; // set to null to auto generate uid on successfull connection
+    var userID = this.uid+'-session-screen'; // set to null to auto generate uid on successfull connection
+
+    if(!this.screenClientJoined){
+      this.screenClient.init(
+        this.appId,
+        () => { 
+          console.log("screen Initialized successfully") 
+          this.screenClient.join(null, this.channel , userID, (uid) => {
+            console.log(
+              'screen client join channel: ' + this.channel + ' success, uid: ' + uid
+            )
+            
+            // this.screenClient.setClientRole(this.userRole, () => {
+            //   console.log("client role changed");
+            // });
+
+            this.screenClientJoined = true;
+            this.initScreenShare()
+          })
+        },
+        () => console.log("screen Could not initialize")
+      );
+    }
+    else{
+      this.initScreenShare()
+    }
 
     //Number.tem = windows.navigator.userAgent.match(/(Chrome(?=\/))\/?(\d+)/i);
     //if(parseInt(tem[2]) >= 72  && navigator.mediaDevices.getDisplayMedia ) {
      // Create the stream for screensharing
-        this.screenStream = this.agoraService.createStream({
-            streamID: this.uid + "-screen",
-            audio: false,
-            video: false,
-            screen: true,
-        });
+        // this.screenStream = this.agoraService.createStream({
+        //     streamID: this.uid + "-screen",
+        //     audio: false,
+        //     video: false,
+        //     screen: true,
+        // });
     //}
 
-    this.assignLocalScreenStreamHandlers();
-    this.initScreenShare();
+    // this.assignLocalScreenStreamHandlers();
+    // this.initScreenShare();
 
-    this.screenClient.join(null, this.channel , userID);
-    setTimeout(() => {
+    // this.screenClient.join(null, this.channel , userID);
+    // setTimeout(() => {
 
-        this.screenPublish();
-        this.totalUsersList.push("agora_remote-screen" + this.uid);
-      }, 3000);
+    //     this.screenPublish();
+    //     this.totalUsersList.push("agora_remote-session-screen" + this.uid);
+    //   }, 3000);
 
   }
 
@@ -566,12 +877,31 @@ openDialog(): void {
   }
 
   protected initScreenShare(): void {
+
+    this.screenStream = this.agoraService.createStream({
+        streamID: this.uid + "_session_screen",
+        audio: false,
+        video: false,
+        screen: true,
+    });
+
+    this.assignScreenClientHandlers();
+
     this.screenStream.init(
       () => {
+        this.screenPublish();
         // The user has granted access to the camera and mic.
         // console.log("getUserMedia successfully");
         this.screenShare = true;
-        this.screenStream.play("agora_remote-" + this.uid);
+        const user_id = this.uid+'_session_screen';
+        console.log("screestream"+user_id)
+        console.log(this.screenStream)
+        console.log(this.screenStream['params'].streamID)
+        if(user_id != this.screenStream['params'].streamID){
+          console.log("playscreenstream")
+          this.screenStream.play("agora_remote-session" + this.uid);
+        }
+        
       },
       (err) => console.log("getUserMedia failed", err)
     );
@@ -601,7 +931,7 @@ openDialog(): void {
 
   private getRemoteId(stream: Stream): string {
     console.log(stream.getId());
-    return `agora_remote-${stream.getId()}`;
+    return `agora_remote-session${stream.getId()}`;
   }
 
   // load carousel
@@ -669,6 +999,15 @@ openDialog(): void {
     this.videoMuted = false;
   }
 
+  muteAll(){
+    console.log("yesmuteall")
+    this.sendChannelMessage('muteAll')
+  }
+
+  unMuteAll(){
+    this.sendChannelMessage('unMuteAll')
+  }
+
   submitQuestion() {
     this.question.senderName = this.userDetails.user_details.name;
     this.question.eventId = this.userDetails.event_details.id;
@@ -720,9 +1059,19 @@ openDialog(): void {
   }
 
   removeScreenShares() {
+    console.log("removescreenshare")
+    //this.screenStream.stop();
+    this.screenStream.close();
+    this.screenShare = false;
+    //this.removeRemoteStream(this.screenStream);
     this.screenUnPublish();
-    this.screenStream.stop();
-    this.join();
+
+    this.localStream.play("agora_remote-session" + this.uid);
+
+    // this.connected = false;
+    // this.published = false;
+    // this.connected = false;
+    // this.join();
     // this.publish();
   }
 
@@ -737,7 +1086,7 @@ openDialog(): void {
   }
 
   screenUnPublish() {
-    this.client.unpublish(this.screenStream, (error) => console.error(error));
+    this.screenClient.unpublish(this.screenStream, (error) => console.error(error));
   }
 
   openFullscreen() {
