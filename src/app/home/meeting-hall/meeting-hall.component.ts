@@ -57,6 +57,10 @@ export class MeetingHallComponent implements OnInit {
   selectuserType: String;
 
   enableSessionStreaming = false;
+  enableJoinNowToggle = false;
+  enableJoinSessionToggle = false;
+  enableJoinSpeakerLoungeToggle = false;
+  enableAttendeeCountToggle = false;
 
   activeTab = 1;
   activeTab2 = 1;
@@ -158,6 +162,18 @@ export class MeetingHallComponent implements OnInit {
       codec: "vp8",
     });
     //this.assignScreenClientHandlers();
+	
+	if(localStorage.getItem("enableJoinNow") == "yes"){
+      this.enableJoinNowToggle = true;
+    }
+
+    if(localStorage.getItem("enableSpeakerLounge") == "yes"){
+      this.enableJoinSpeakerLoungeToggle = true;
+    }
+	
+	if(localStorage.getItem("enableAttendeeCount") == "yes"){
+      this.enableAttendeeCountToggle = true;
+    }
 
     if(localStorage.getItem("enableSessionStreaming") == "yes"){
       this.enableSessionStreaming = true;
@@ -709,7 +725,7 @@ export class MeetingHallComponent implements OnInit {
         // ALLOW SPEAKER LOUNGE TO JOIN CALL
 
         console.log("speakerloungeon");
-        
+        localStorage.setItem("enableSpeakerLounge", "yes");
 
       });
 
@@ -717,6 +733,7 @@ export class MeetingHallComponent implements OnInit {
         
         // DISALLOW SPEAKER LOUNGE TO JOIN CALL
         console.log("speakerloungeoff");
+		localStorage.setItem("enableSpeakerLounge", "no");
       });
 
       this.channelEmitter.on(`join-now-on`, function ( {content}) {
@@ -724,14 +741,14 @@ export class MeetingHallComponent implements OnInit {
         // ALLOW JOIN NOW TO JOIN CALL
 
         console.log("joinnowon");
-
+		localStorage.setItem("enableJoinNow", "yes");
       });
 
       this.channelEmitter.on(`join-now-off`, function ( {content}) {
         
         // DISALLOW JOIN NOW TO JOIN CALL
         console.log("joinnowoff");
-        
+        localStorage.setItem("enableJoinNow", "no");
       });
 
       this.channelEmitter.on(`join-session-room-on`, function ( {content}) {
@@ -740,8 +757,8 @@ export class MeetingHallComponent implements OnInit {
         console.log("joinsessionroomon");
 
         this.enableSessionStreaming = true;
+		localStorage.setItem("enableSessionStreaming", "yes");
         location.reload();
-        localStorage.setItem("enableSessionStreaming", "yes");
       });
 
       this.channelEmitter.on(`join-session-room-off`, function ( {content}) {
@@ -749,10 +766,26 @@ export class MeetingHallComponent implements OnInit {
         // DISALLOW SESSION ROOM TO JOIN CALL
         console.log("joinsessionroomoff");
         this.enableSessionStreaming = false;
+		localStorage.setItem("enableSessionStreaming", "no");
         location.reload();
-        localStorage.setItem("enableSessionStreaming", "no");
         
       });
+	  
+	  this.channelEmitter.on(`attendee-count-on`, function ( {content}) {
+       
+        // ALLOW JOIN NOW TO JOIN CALL
+
+        console.log("attendeecounton");
+        localStorage.setItem("enableAttendeeCount", "yes");
+      });
+
+      this.channelEmitter.on(`attendee-count-off`, function ( {content}) {
+        
+        // DISALLOW JOIN NOW TO JOIN CALL
+        console.log("attendeecountoff");
+        localStorage.setItem("enableAttendeeCount", "no");
+      });
+	  
   }
 
   private rtmLogin(){
@@ -797,6 +830,33 @@ export class MeetingHallComponent implements OnInit {
     });
 
   }
+  
+  setRoomControls(message){
+    if(message == 'join-now-on'){
+      localStorage.setItem("enableJoinNow", "yes");
+    }
+    if(message == 'join-now-off'){
+      localStorage.setItem("enableJoinNow", "no");
+    }
+    if(message == 'speaker-lounge-on'){
+      localStorage.setItem("enableSpeakerLounge", "yes");
+    }
+    if(message == 'speaker-lounge-off'){
+      localStorage.setItem("enableSpeakerLounge", "no");
+    }
+    if(message == 'attendee-count-on'){
+      localStorage.setItem("enableAttendeeCount", "yes");
+    }
+    if(message == 'attendee-count-off'){
+      localStorage.setItem("enableAttendeeCount", "no");
+    }
+    if(message== 'join-session-room-on'){
+      localStorage.setItem("enableSessionStreaming", "yes");
+    }
+    if(message== 'join-session-room-off'){
+      localStorage.setItem("enableSessionStreaming", "no");
+    }
+  }
 
   private sendChannelMessage(message){
     if (!this.isReady) {
@@ -806,6 +866,7 @@ export class MeetingHallComponent implements OnInit {
     this.rtmChannel.sendMessage({  text: `${message}` }).then(() => {
       console.log("channel message-send success"+message) ;
       this.setRemoteStreamAudioVideoMuteUnmute(message)
+	  this.setRoomControls(message)
     }).catch(error => {
       console.log("channel message-send failure") ;
       console.log(error)

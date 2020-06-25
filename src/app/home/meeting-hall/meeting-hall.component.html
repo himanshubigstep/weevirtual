@@ -681,10 +681,10 @@
                       <div id='slide-toggle' class="room-control-wrapper white-bg set-min-height" [(ngModel)]="selectuserType" name="selectusertype" (change)="allowUserByType()">
                           <h3>Room Controls</h3>
                           <div class="room-controls d-flex flex-column">
-                              <mat-slide-toggle (change)="handleRoomControl($event, 'speaker-lounge')">Speaker Lounge</mat-slide-toggle>
-                              <mat-slide-toggle (change)="handleRoomControl($event, 'join-now')">Join Now</mat-slide-toggle>
-                              <mat-slide-toggle (change)="handleRoomControl($event, 'join-session-room')">Join Session Room</mat-slide-toggle>
-                              <mat-slide-toggle>Attendee Count</mat-slide-toggle>
+                              <mat-slide-toggle [checked]="enableJoinSpeakerLoungeToggle" (change)="handleRoomControl($event, 'speaker-lounge')">Speaker Lounge</mat-slide-toggle>
+                              <mat-slide-toggle [checked]="enableJoinNowToggle" (change)="handleRoomControl($event, 'join-now')">Join Now</mat-slide-toggle>
+                              <mat-slide-toggle [checked]="enableSessionStreaming" (change)="handleRoomControl($event, 'join-session-room')">Join Session Room</mat-slide-toggle>
+                              <mat-slide-toggle [checked]="enableAttendeeCountToggle" (change)="handleRoomControl($event, 'attendee-count')">Attendee Count</mat-slide-toggle>
                           </div>
                       </div>
                   </div>

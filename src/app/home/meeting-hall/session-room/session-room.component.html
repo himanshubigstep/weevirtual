@@ -137,7 +137,7 @@
 
                 <div class="live-number d-flex align-items-center">
                   <span class="live">Live</span>
-                  <div class="total-number">
+                  <div class="total-number" *ngIf="enableLiveCountShow">
                     <span><i class="fa fa-users" aria-hidden="true"></i>{{ totalUsersList.length }}</span>
                   </div>
                 </div>

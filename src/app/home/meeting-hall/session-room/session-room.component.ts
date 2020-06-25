@@ -59,6 +59,8 @@ export class SessionRoomComponent implements OnInit {
    */
   uid: number;
   screenClientJoined = false;
+  
+  enableLiveCountShow = false;
 
   /**
    * All the IDs of other users that have joined the call
@@ -117,6 +119,10 @@ export class SessionRoomComponent implements OnInit {
     let uType:any = localStorage.getItem('currentUser');
     this.userType = JSON.parse(uType);
     //console.log(this.userType.type);
+	
+	if(localStorage.getItem("enableAttendeeCount") == "yes"){
+      this.enableLiveCountShow = true;
+    }
 
     // RTM 
     this.isReady = false ;
@@ -438,7 +444,7 @@ export class SessionRoomComponent implements OnInit {
         // ALLOW SPEAKER LOUNGE TO JOIN CALL
 
         console.log("speakerloungeon");
-        
+        localStorage.setItem("enableSpeakerLounge", "yes");
 
       });
 
@@ -446,6 +452,7 @@ export class SessionRoomComponent implements OnInit {
         
         // DISALLOW SPEAKER LOUNGE TO JOIN CALL
         console.log("speakerloungeoff");
+		localStorage.setItem("enableSpeakerLounge", "no");
       });
 
       this.channelEmitter.on(`join-now-on`, function ( {content}) {
@@ -453,27 +460,46 @@ export class SessionRoomComponent implements OnInit {
         // ALLOW JOIN NOW TO JOIN CALL
 
         console.log("joinnowon");
-
+		localStorage.setItem("enableJoinNow", "yes");
       });
 
       this.channelEmitter.on(`join-now-off`, function ( {content}) {
         
         // DISALLOW JOIN NOW TO JOIN CALL
         console.log("joinnowoff");
+		localStorage.setItem("enableJoinNow", "no");
         
+      });
+	  
+	  this.channelEmitter.on(`attendee-count-on`, function ( {content}) {
+       
+        // ALLOW JOIN NOW TO JOIN CALL
+
+        console.log("attendeecounton");
+        localStorage.setItem("enableAttendeeCount", "yes");
+        this.enableLiveCountShow = true;
+      });
+
+      this.channelEmitter.on(`attendee-count-off`, function ( {content}) {
+        
+        // DISALLOW JOIN NOW TO JOIN CALL
+        console.log("attendeecountoff");
+        localStorage.setItem("enableAttendeeCount", "no");
+        this.enableLiveCountShow = false;
       });
 
       this.channelEmitter.on(`join-session-room-on`, function ( {content}) {
        
         // ALLOW SESSION ROOM TO JOIN CALL
         console.log("joinsessionroomon");
-
+		localStorage.setItem("enableSessionStreaming", "yes");
       });
 
       this.channelEmitter.on(`join-session-room-off`, function ( {content}) {
         
         // DISALLOW SESSION ROOM TO JOIN CALL
         console.log("joinsessionroomoff");
+		localStorage.setItem("enableSessionStreaming", "no");
         
       });
   }
