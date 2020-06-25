@@ -97,7 +97,7 @@ h3 {
 }
 
 .message-wrapper {
-  height: 490px;
+  height: 400px;
   overflow-y: auto;
   margin-bottom: 35px;
 
@@ -319,43 +319,24 @@ input:focus {
   }
 }
 
-
 .control-buttons {
   position: absolute;
   bottom: 10px;
   left: 10px;
   right: 10px;
   display: flex;
-  justify-content: space-evenly;
+  justify-content: center;
   align-items: center;
   width: 100%;
-  max-width: 800px;
+  max-width: 75%;
   padding: 10px 15px;
   box-sizing: border-box;
   margin: 0 auto;
   background-color: rgba(255, 255, 255, 0.6);
-  border-radius: 5px;
-  .mic_btn_on_off {
-    position: relative;
-  }
-  .dropdown-toggle {
-    vertical-align: middle;
-    margin-right: 10px;
-    cursor: pointer;
-  }
-  .normal-icon-btn {
-    background: #fff;
-    border-color: #fff;
-    border-radius: 100px;
-    padding: 0;
-    width: 40px;
-    height: 40px;
-  }
   .btn {
     margin: 0 5px;
     .material-icons {
       vertical-align: middle;
-      color: #001663;
     }
   }
   @media (max-width: 767px) {
@@ -463,9 +444,6 @@ input:focus {
 .single-video {
   height: 490px;
 }
-.bg-img .single-video {
-  height: 190px;
-}
 
 .remote-screenShare {
   width: 100%;
@@ -474,9 +452,6 @@ input:focus {
 
 .two-video {
   height: 490px;
-}
-.bg-img .two-video {
-  height: 100px;
 }
 
 .three-video {
@@ -494,9 +469,15 @@ input:focus {
 .remote-calls {
   position: relative;
   height: inherit;
-  .admin_mute_control {
+  .btn-danger {
+    display: inline-block;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 5px;
     position: absolute;
-    left: 0;
+    right: 0;
+    top: 0;
     z-index: 9;
   }
   .btn-secondary {
@@ -504,14 +485,22 @@ input:focus {
     background: transparent;
     border: none;
     padding: 0;
-    margin: 15px;
+    margin: 5px;
+    position: absolute;
+    left: 50px;
+    top: 0;
+    z-index: 9;
   }
   .btn-primary {
     display: inline-block;
     background: transparent;
     border: none;
     padding: 0;
-    margin: 15px;
+    margin: 5px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 9;
   }
   .material-icons {
     color: #222;
