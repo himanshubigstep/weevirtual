@@ -35,7 +35,9 @@ export class MeetingHallComponent implements OnInit {
   scroll: ScrollToBottomDirective;
   private localStream: Stream;
   private screenStream: Stream;
+  private sessionLocalStream: Stream;
   private client: AgoraClient;
+  private sessionClient: AgoraClient;
   private screenClient: AgoraClient;
   public question: Chatbox;
   public questionList;
@@ -49,6 +51,8 @@ export class MeetingHallComponent implements OnInit {
   totalUsersList = [];
   userType:any;
   selectuserType: String;
+
+  enableSessionStreaming = false;
 
   activeTab = 1;
   activeTab2 = 1;
@@ -76,7 +80,8 @@ export class MeetingHallComponent implements OnInit {
   /**
    * Channel (meeting room) within the Agora app to join
    */
-  channel = "12345";
+  channel = "speakerLounge";
+  sessionChannel = "sessionRoom";
   /**
    * Generated user ID that is attached to the local client when joining a meeting room
    */
@@ -103,11 +108,14 @@ export class MeetingHallComponent implements OnInit {
 
   audioMuted = false;
   videoMuted = false;
+  MuteAll = false;
 
   remoteAudioMuted = false;
   remoteVideoMuted= false;
 
   screenShareDiv: string = "agora_screen";
+
+  remoteSessionCalls: any[] = [];
 
   constructor(
     private agoraService: NgxAgoraService,
@@ -133,11 +141,22 @@ export class MeetingHallComponent implements OnInit {
     });
     //this.assignClientHandlers();
 
+    this.sessionClient = this.agoraService.createClient({
+      mode: "live",
+      codec: "h264",
+    });
+
     this.screenClient = this.agoraService.createClient({
       mode: "rtc",
       codec: "vp8",
     });
     //this.assignScreenClientHandlers();
+
+    if(localStorage.getItem("enableSessionStreaming") == "yes"){
+      this.enableSessionStreaming = true;
+    }
+    
+    this.pauseResumeRemoteStreams()
 
     //this.join();
 
@@ -148,7 +167,7 @@ export class MeetingHallComponent implements OnInit {
     // RTM 
     this.isReady = false ;
     this.rtmClient  = AgoraRTM.createInstance(this.appId); 
-    this.rtmChannel = this.rtmClient.createChannel(this.channel);
+    this.rtmChannel = this.rtmClient.createChannel('RTMChannel');
     this.channelEmitter = new EventEmitter();
 
     console.log(this.rtmClient);
@@ -163,7 +182,10 @@ export class MeetingHallComponent implements OnInit {
   elem;
   mediaList: any;
 
+  isSessionClient = false;
+
   ngOnInit() {
+    this.elem = document.documentElement;
 
     this.httpservice.get(
       `events/media-upload/` + 1
@@ -192,28 +214,7 @@ export class MeetingHallComponent implements OnInit {
 
     this.loadCarouselScript();
 
-    const urlParams = new URLSearchParams(window.location.search);
-        console.log(urlParams.get('role'));
-
-    if (
-      this.userDetails.user_details.user_type != "audience" &&
-      this.userDetails.user_details.user_type != "attendee"
-    ) {
-      this.screenShareDivID = "agora_remote-screen-" + this.uid;
-      this.remoteCalls.push({
-        divId: "agora_remote-" + this.uid,
-        userName: this.userDetails.user_details.name,
-        designation: this.userDetails.user_details.designation,
-      });
-      
-      this.userRole = "host";
-      // if(this.userDetails.user_details.user_type!='admin'){
-      //   this.userRole = 'audience';
-      // }
-      console.log(this.userDetails.user_details.user_type)
-      console.log("userrole"+this.userRole)
-      
-    }
+    this.userRole = "host";
 
     this.getMeetingChat(this.userDetails.event_details.id);
 
@@ -223,6 +224,45 @@ export class MeetingHallComponent implements OnInit {
       { name: 'description', content: 'Session On Technology and Innovation for Sustainability. Leaders of Tomorrow - Season 8, the most comprehensive enabling platform for small businesses.' },
     ]);
     
+  }
+
+  playSelfStream(stream_type){
+    if (
+      this.userDetails.user_details.user_type != "audience" &&
+      this.userDetails.user_details.user_type != "attendee"
+    ) {
+      console.log("isSessionClient"+this.isSessionClient)
+      this.screenShareDivID = "agora_remote-screen-" + this.uid;
+
+      if(stream_type=='session'){
+        this.screenShareDivID = "agora_remote-session-screen-" + this.uid;
+        this.remoteSessionCalls.push({
+          divId: "agora_remote-session-" + this.uid,
+          userName: this.userDetails.user_details.name,
+          designation: this.userDetails.user_details.designation,
+          stream: '',
+          remoteAudioMuted: false,
+          remoteVideoMuted: false
+        });
+      }else{
+        this.screenShareDivID = "agora_remote-screen-" + this.uid;
+        this.remoteCalls.push({
+          divId: "agora_remote-" + this.uid,
+          userName: this.userDetails.user_details.name,
+          designation: this.userDetails.user_details.designation,
+          stream: '',
+          remoteAudioMuted: false,
+          remoteVideoMuted: false
+        });
+      }
+
+      // if(this.userDetails.user_details.user_type!='admin'){
+      //   this.userRole = 'audience';
+      // }
+      console.log(this.userDetails.user_details.user_type)
+      console.log("userrole"+this.userRole)
+      
+    }
   }
 
   // Session Timer Form
@@ -328,7 +368,7 @@ export class MeetingHallComponent implements OnInit {
 
   }
 
-openDialog(): void {
+  openDialog(): void {
     const dialogRef = this.dialog.open(MeetingHallDailogComponent, {
       width: '600px',
        //data: {name: this.name, animal: this.animal}
@@ -338,7 +378,237 @@ openDialog(): void {
        console.log('The dialog was closed');
        //this.animal = result;
      });
-   }
+  }
+
+  pauseResumeRemoteStreams(){
+    if(localStorage.getItem("muteAll") == "yes"){
+      this.pauseAllRemoteAudioStreams()
+    }
+
+    if(localStorage.getItem("muteAll") == "no"){
+      this.resumeAllRemoteAudioStreams()
+    }
+
+    if(localStorage.getItem("muteRemoteVideo")!=null && JSON.parse(localStorage.getItem("muteRemoteVideo")).length > 0){
+      this.pauseRemoteVideoStream();
+    }
+
+    if(localStorage.getItem("unMuteRemoteVideo")!=null && JSON.parse(localStorage.getItem("unMuteRemoteVideo")).length > 0){
+      this.resumeRemoteVideoStream();
+    }
+
+    if(localStorage.getItem("muteRemoteAudio")!=null && JSON.parse(localStorage.getItem("muteRemoteAudio")).length > 0){
+      this.pauseRemoteAudioStream();
+    }
+
+    if(localStorage.getItem("unMuteRemoteAudio")!=null && JSON.parse(localStorage.getItem("unMuteRemoteAudio")).length > 0){
+      this.resumeRemoteAudioStream();
+    }
+
+  }
+
+  pauseRemoteVideoStream(){
+    console.log("pauseremotevideo")
+    const remoteStreams = this.remoteCalls;
+    for(let i = 0; i<remoteStreams.length; i++){
+      remoteStreams[i].remoteVideoMuted = false
+      if(remoteStreams[i].stream!='' && JSON.parse(localStorage.getItem("muteRemoteVideo")).indexOf(remoteStreams[i].stream.getId()) > -1 ){
+        console.log("pausevideostream"+remoteStreams[i].stream.getId())
+        remoteStreams[i].stream.muteVideo();
+        remoteStreams[i].remoteVideoMuted = true
+      }
+    }
+    this.remoteCalls = remoteStreams;
+    console.log(this.remoteCalls)
+  }
+  
+  resumeRemoteVideoStream(){
+    console.log("resumeremotevideo")
+    const remoteStreams = this.remoteCalls;
+    for(let i = 0; i<remoteStreams.length; i++){
+      remoteStreams[i].remoteVideoMuted = true
+      if(remoteStreams[i].stream!='' && JSON.parse(localStorage.getItem("unMuteRemoteVideo")).indexOf(remoteStreams[i].stream.getId()) > -1 ){
+        console.log("resumevideostream"+remoteStreams[i].stream.getId())
+        remoteStreams[i].remoteVideoMuted = false
+        remoteStreams[i].stream.unmuteVideo();
+      }
+    }
+    this.remoteCalls = remoteStreams
+  }
+
+  pauseAllRemoteAudioStreams(){
+    console.log("pauseallremoteaudios")
+    const remoteStreams = this.remoteCalls;
+    for(let i = 0; i<remoteStreams.length; i++){
+      if(remoteStreams[i].stream!=''){
+        remoteStreams[i].remoteAudioMuted = true;
+        if(localStorage.getItem("unMuteRemoteAudio")!=null && JSON.parse(localStorage.getItem("unMuteRemoteAudio")).indexOf(remoteStreams[i].stream.getId()) == -1 ){
+          console.log("resumeaudiostream"+remoteStreams[i].stream.getId())
+          console.log("unmuteaudio")
+          remoteStreams[i].stream.muteAudio();
+          remoteStreams[i].remoteAudioMuted = false;
+        }        
+      }
+    }
+    this.remoteCalls = remoteStreams;
+    console.log(this.remoteCalls)
+  }
+  
+  resumeAllRemoteAudioStreams(){
+    console.log("resumeallremoteaudios")
+    const remoteStreams = this.remoteCalls;
+    for(let i = 0; i<remoteStreams.length; i++){
+      if(remoteStreams[i].stream!=''){
+        remoteStreams[i].stream.unmuteAudio();
+        remoteStreams[i].remoteAudioMuted = false;
+      }
+    }
+    this.remoteCalls = remoteStreams
+  }
+
+  pauseRemoteAudioStream(){
+    console.log("pauseremoteaudio")
+    const remoteStreams = this.remoteCalls;
+    for(let i = 0; i<remoteStreams.length; i++){
+      remoteStreams[i].remoteAudioMuted = false
+      if(remoteStreams[i].stream!='' && JSON.parse(localStorage.getItem("muteRemoteAudio")).indexOf(remoteStreams[i].stream.getId()) > -1 ){
+        console.log("pauseaudiostream"+remoteStreams[i].stream.getId())
+        remoteStreams[i].remoteAudioMuted = true
+        remoteStreams[i].stream.muteAudio();
+      }
+    }
+    this.remoteCalls = remoteStreams
+    console.log(this.remoteCalls)
+  }
+  
+  resumeRemoteAudioStream(){
+    console.log("resumeremoteaudio")
+    const remoteStreams = this.remoteCalls;
+    for(let i = 0; i<remoteStreams.length; i++){
+      remoteStreams[i].remoteAudioMuted = true
+      if(remoteStreams[i].stream!='' && JSON.parse(localStorage.getItem("unMuteRemoteAudio")).indexOf(remoteStreams[i].stream.getId()) > -1 ){
+        console.log("resumeaudiostream"+remoteStreams[i].stream.getId())
+        remoteStreams[i].remoteAudioMuted = false
+        remoteStreams[i].stream.unmuteAudio();
+      }
+    }
+    this.remoteCalls = remoteStreams
+  }
+
+  setRemoteStreamAudioVideoMuteUnmute(message){
+
+    if(message == 'muteAll'){ //Mute Audios of all remote streams
+
+      if(localStorage.getItem("muteRemoteAudio")!=null){
+        localStorage.removeItem("muteRemoteAudio");
+      }
+
+      if(localStorage.getItem("unMuteRemoteAudio")!=null){
+        localStorage.removeItem("unMuteRemoteAudio");
+      }
+
+      localStorage.setItem("muteAll", "yes")
+      this.pauseAllRemoteAudioStreams()
+    }
+
+    if(message == 'unMuteAll'){
+
+      if(localStorage.getItem("muteRemoteAudio")!=null){
+        localStorage.removeItem("muteRemoteAudio");
+      }
+
+      if(localStorage.getItem("unMuteRemoteAudio")!=null){
+        localStorage.removeItem("unMuteRemoteAudio");
+      }
+
+      localStorage.setItem("muteAll", "no")
+      this.resumeAllRemoteAudioStreams()
+    }
+
+    if(message.includes('yesmuteRemoteVideo')){ //Mute Remote Video
+
+      const stream_id = parseInt(message.split("@")[1]);
+      let muteVideos = (localStorage.getItem("muteRemoteVideo") != null) ? JSON.parse(localStorage.getItem("muteRemoteVideo")) : []
+
+      if(localStorage.getItem("unMuteRemoteVideo")!=null){
+        //Remove the unmuted stream from mute array
+        let unmuteVideos = JSON.parse(localStorage.getItem("unMuteRemoteVideo"));
+        if (unmuteVideos.indexOf(stream_id) > -1) {
+          unmuteVideos.splice(unmuteVideos.indexOf(stream_id), 1);
+          localStorage.setItem("unMuteRemoteVideo", JSON.stringify(unmuteVideos));
+        } 
+      }
+      
+      (muteVideos.indexOf(stream_id) == -1) ? muteVideos.push(stream_id) : null;
+      localStorage.setItem("muteRemoteVideo", JSON.stringify(muteVideos));
+      this.pauseRemoteVideoStream();
+    }
+
+    if(message.includes('unMuteRemoteVideo')){ // //UnMute Remote Video
+
+      const stream_id = parseInt(message.split("@")[1]);      
+      let unMuteVideos = (localStorage.getItem("unMuteRemoteVideo") != null) ? JSON.parse(localStorage.getItem("unMuteRemoteVideo")) : []
+
+      if(localStorage.getItem("muteRemoteVideo")!=null){
+        //Remove the unmuted stream from mute array
+        let muteVideos = JSON.parse(localStorage.getItem("muteRemoteVideo"));
+        if (muteVideos.indexOf(stream_id) > -1) {
+          muteVideos.splice(muteVideos.indexOf(stream_id), 1);
+          localStorage.setItem("muteRemoteVideo", JSON.stringify(muteVideos));
+        } 
+      }
+      (unMuteVideos.indexOf(stream_id) == -1) ? unMuteVideos.push(stream_id) : null;
+      localStorage.setItem("unMuteRemoteVideo", JSON.stringify(unMuteVideos));
+      this.resumeRemoteVideoStream();
+    }
+
+    //if(localStorage.getItem("muteAll") == null || localStorage.getItem("muteAll") == "no"){
+      if(message.includes('yesmuteRemoteAudio')){ //Mute Remote Audio
+
+        if(localStorage.getItem("muteAll") == "no"){
+          localStorage.removeItem("muteAll");
+        }
+        
+        const stream_id = parseInt(message.split("@")[1]);
+
+        let muteAudios = (localStorage.getItem("muteRemoteAudio") != null) ? JSON.parse(localStorage.getItem("muteRemoteAudio")) : []
+
+        if(localStorage.getItem("unMuteRemoteAudio")!=null){
+          //Remove the unmuted stream from mute array
+          let unmuteAudios = JSON.parse(localStorage.getItem("unMuteRemoteAudio"));
+          if (unmuteAudios.indexOf(stream_id) > -1) {
+            unmuteAudios.splice(unmuteAudios.indexOf(stream_id), 1);
+            localStorage.setItem("unMuteRemoteAudio", JSON.stringify(unmuteAudios));
+          } 
+        }
+
+        (muteAudios.indexOf(stream_id) == -1) ? muteAudios.push(stream_id) : null;
+        localStorage.setItem("muteRemoteAudio", JSON.stringify(muteAudios));
+        this.pauseRemoteAudioStream();
+      }
+    //}
+      
+    if(message.includes('unMuteRemoteAudio')){ // //UnMute Remote Audio
+
+      const stream_id = parseInt(message.split("@")[1]);
+      let unMuteAudios = (localStorage.getItem("unMuteRemoteAudio") != null) ? JSON.parse(localStorage.getItem("unMuteRemoteAudio")) : []
+
+      if(localStorage.getItem("muteRemoteAudio")!=null){
+        let muteAudios = JSON.parse(localStorage.getItem("muteRemoteAudio"));
+        if (muteAudios.indexOf(stream_id) > -1) {
+          muteAudios.splice(muteAudios.indexOf(stream_id), 1);
+          localStorage.setItem("muteRemoteAudio", JSON.stringify(muteAudios));
+        }
+      }
+      
+      (unMuteAudios.indexOf(stream_id) == -1) ? unMuteAudios.push(stream_id) : null;
+      localStorage.setItem("unMuteRemoteAudio", JSON.stringify(unMuteAudios));
+      this.resumeRemoteAudioStream();
+    }
+
+    this.handleRemoteSessionsMuteUnmute(message);
+    
+  }
 
   private assignRtmHandlers(): void{
 
@@ -369,7 +639,10 @@ openDialog(): void {
     // CHANNEL MESSAGE
     this.rtmChannel.on('ChannelMessage', ({ text: message }, senderId) => {
       console.log('ChannelMessage :', message , senderId);
-      this.channelEmitter.emit(`${message}-TO-JOIN`, message);
+
+      this.setRemoteStreamAudioVideoMuteUnmute(message);
+      
+      this.channelEmitter.emit(`${message}`, message);
     });
 
   }
@@ -379,24 +652,56 @@ openDialog(): void {
       this.channelEmitter.on('joinedChannel', () => {
         this.isReady = true;
         console.log("Channel emitter work fine");
-        this.sendChannelMessage('helloworld');
+        //this.sendChannelMessage('helloworld');
       });
 
-      this.channelEmitter.on(`ALLOW_MODERATOR-TO-JOIN`, function ( {content}) {
+      this.channelEmitter.on(`speaker-lounge-on`, function ( {content}) {
        
-        // ALLOW MODERATOR TO JOIN CALL
+        // ALLOW SPEAKER LOUNGE TO JOIN CALL
+
+        console.log("speakerloungeon");
+        
 
       });
 
-      this.channelEmitter.on(`ALLOW_PANELLIST-TO-JOIN`, function ( {content}) {
+      this.channelEmitter.on(`speaker-lounge-off`, function ( {content}) {
         
-        // ALLOW PANELLIST TO JOIN CALL
+        // DISALLOW SPEAKER LOUNGE TO JOIN CALL
+        console.log("speakerloungeoff");
+      });
+
+      this.channelEmitter.on(`join-now-on`, function ( {content}) {
+       
+        // ALLOW JOIN NOW TO JOIN CALL
+
+        console.log("joinnowon");
+
+      });
+
+      this.channelEmitter.on(`join-now-off`, function ( {content}) {
+        
+        // DISALLOW JOIN NOW TO JOIN CALL
+        console.log("joinnowoff");
         
       });
 
-      this.channelEmitter.on(`ALLOW_ATTENDEE-TO-JOIN`, function ( {content}) {
+      this.channelEmitter.on(`join-session-room-on`, function ( {content}) {
+       
+        // ALLOW SESSION ROOM TO JOIN CALL
+        console.log("joinsessionroomon");
+
+        this.enableSessionStreaming = true;
+        location.reload();
+        localStorage.setItem("enableSessionStreaming", "yes");
+      });
+
+      this.channelEmitter.on(`join-session-room-off`, function ( {content}) {
         
-        // ALLOW ATTENDEE TO JOIN CALL
+        // DISALLOW SESSION ROOM TO JOIN CALL
+        console.log("joinsessionroomoff");
+        this.enableSessionStreaming = false;
+        location.reload();
+        localStorage.setItem("enableSessionStreaming", "no");
         
       });
   }
@@ -405,8 +710,11 @@ openDialog(): void {
 
     this.rtmClient.login({ token: null, uid: this.uid.toString() } ).then(() => {
       console.log('AgoraRTM client login success');
-      this.sendPeerMessage();
-      this.join();
+      this.join(); //Join Speaker Lounge Channel
+      if(this.userDetails.user_details.user_type == 'admin'){
+        console.log("hlwjoinsession")
+        this.joinSession(); //Join Session Room Channel
+      }
       // JOIN CHANNEL
       this.rtmChannel.join().then(() => {
         console.log('Channel join');
@@ -447,35 +755,11 @@ openDialog(): void {
       return;
     }
     this.rtmChannel.sendMessage({  text: `${message}` }).then(() => {
-      console.log("channel message-send success") ;
+      console.log("channel message-send success"+message) ;
+      this.setRemoteStreamAudioVideoMuteUnmute(message)
     }).catch(error => {
       console.log("channel message-send failure") ;
-    });
-
-  }
-
-  private sendPeerMessage(){
-
-    // PEER TO PEER MESSAGE
-    this.rtmClient.sendMessageToPeer({ text: 'test peer message' }, // An RtmMessage object.
-      this.uid.toString(), // The user ID of the remote user.
-    ).then(sendResult => {
-      if (sendResult.hasPeerReceived) {
-
-        console.log('yes peer received');
-        /* Your code for handling the event that the remote user receives the message. */
-
-       } else {
-
-          console.log('not peer received');
-          /* Your code for handling the event that the message is received by the server but the remote user cannot be reached. */
-
-       }
-
-    }).catch(error => {
-        
-        console.log('peer error');
-        /* Your code for handling the event of a message send failure. */
+      console.log(error)
     });
 
   }
@@ -516,6 +800,11 @@ openDialog(): void {
 
       this.totalUsersList.push(id);
       // const selectedObj = true;
+      console.log("hlwcurrentuser")
+      console.log(this.totalUsersList);
+      console.log(this.panellistUsersList)
+      
+      console.log(stream.getId())
       console.log(
         this.panellistUsersList.filter((res) => res.id == stream.getId())
       );
@@ -532,21 +821,19 @@ openDialog(): void {
             divId: id,
             // userName: selectedObj.full_name,
             // designation: selectedObj.designation,
-            userName: "Sanjeev",
-            designation: "Developer",
-            stream: stream
+            userName: "",
+            designation: "",
+            stream: stream,
+            remoteAudioMuted: false,
+            remoteVideoMuted: false,
           });
-        //}
-        // this.remoteCalls.push({
-        //   divId: id,
-        //   // userName: selectedObj.full_name,
-        //   // designation: selectedObj.designation,
-        //   userName: "Sanjeev",
-        //   designation: "Developer",
-        // });
+        }
 
         setTimeout(() => stream.play(id), 1000);
-      }
+
+        this.pauseResumeRemoteStreams();
+
+      //}
     });
 
     this.client.on(ClientEvent.RemoteStreamRemoved, (evt) => {
@@ -625,6 +912,9 @@ openDialog(): void {
   }
 
   join(): void {
+
+    this.playSelfStream('')
+
     if (!this.connected) {
       
       this.client.init(
@@ -841,6 +1131,8 @@ openDialog(): void {
         console.log(response);
         if (response.panellists.length > 0) {
           this.panellistUsersList = response.panellists;
+          console.log("console.log(this.panellistUsersList)")
+          console.log(console.log(this.panellistUsersList))
         } else {
           this.panellistUsersList = [];
         }
@@ -884,22 +1176,30 @@ openDialog(): void {
   }
 
   muteRemoteAudio(stream_id){
-    this.remoteCalls[stream_id].stream.muteAudio();
+    this.sendChannelMessage('yesmuteRemoteAudio@'+this.remoteCalls[stream_id].stream.getId());
+    // this.remoteCalls[stream_id].stream.muteAudio();
+    //this.sendChannelMessage('yesmuteRemoteAudio@'+14);
     this.remoteAudioMuted = true;
   }
 
   unRemoteMuteAudio(stream_id) {
-    this.remoteCalls[stream_id].stream.unmuteAudio();
+    this.sendChannelMessage('unMuteRemoteAudio@'+this.remoteCalls[stream_id].stream.getId())
+    // this.remoteCalls[stream_id].stream.unmuteAudio();
+    //this.sendChannelMessage('unMuteRemoteAudio@'+14)
     this.remoteAudioMuted = false;
   }
 
   muteRemoteVideo(stream_id) {
-    this.remoteCalls[stream_id].stream.muteVideo();
+    this.sendChannelMessage('yesmuteRemoteVideo@'+this.remoteCalls[stream_id].stream.getId());
+    //this.sendChannelMessage('yesmuteRemoteVideo@'+14);
+    //this.remoteCalls[stream_id].stream.muteVideo();
     this.remoteVideoMuted = true;
   }
 
   unMuteRemoteVideo(stream_id) {
-    this.remoteCalls[stream_id].stream.unmuteVideo();
+    this.sendChannelMessage('unMuteRemoteVideo@'+this.remoteCalls[stream_id].stream.getId())
+    //this.sendChannelMessage('unMuteRemoteVideo@'+14)
+    //this.remoteCalls[stream_id].stream.unmuteVideo();
     this.remoteVideoMuted = false;
   }
 
@@ -938,6 +1238,17 @@ openDialog(): void {
 
     this.localStream.unmuteVideo();
     this.videoMuted = false;
+  }
+
+  muteAll(){
+    console.log("yesmuteall")
+    this.sendChannelMessage('muteAll')
+    this.MuteAll = true;
+  }
+
+  unMuteAll(){
+    this.sendChannelMessage('unMuteAll')
+    this.MuteAll = false;
   }
 
   submitQuestion() {
@@ -1013,6 +1324,17 @@ openDialog(): void {
     this.router.navigate(["/home"]);
   }
 
+  navigateToSessionRoom(){
+    this.unpublish();
+    console.log("after unpublish")
+    this.localStream.stop();
+    this.localStream.close();
+    this.removeRemoteStream(this.localStream);
+    this.remoteCalls = [];
+    localStorage.setItem("userRole", "host");
+    this.router.navigate(["/home/session-room"]);
+  }
+
   goToMobileChat(){
     this.router.navigate(['home/mobile-chat']);
   }
@@ -1021,10 +1343,410 @@ openDialog(): void {
     this.screenClient.unpublish(this.screenStream, (error) => console.error(error));
   }
 
+  handleRoomControl(event, control){
+    console.log("handleroomcontrol")
+    let msg = '';
+    if(event.checked){
+      msg = control+'-on';
+      console.log("event on")
+    }else{
+      msg = control+'-off';
+      console.log("event off")
+    }
+    this.sendChannelMessage(msg)
+  }
+
   allowUserByType(){
     // console.log(this.selectuserType);
     // let message = "ALLOW_MODERATOR" ;
-    this.sendChannelMessage(this.selectuserType);
+    //this.sendChannelMessage(this.selectuserType);
+  }
+
+  //Session Rooms Handles
+  joinSession(): void {
+
+    this.playSelfStream('session')
+
+    if (!this.connected) {
+      
+      this.sessionClient.init(
+        this.appId,
+        () => {
+          console.log("Session Initialized successfully") 
+          this.sessionClient.join(null, this.sessionChannel, this.uid+'_session', (uid) => {
+            console.log("User " + uid + " join channel successfully")
+
+            this.assignSessionClientHandlers()
+
+            this.sessionClient.setClientRole(this.userRole, () => {
+              console.log("session client role changed");
+            });
+
+            this.sessionLocalStream = this.agoraService.createStream({
+              streamID: this.uid+'_session',
+              audio: true,
+              video: true,
+              screen: false,
+            });
+
+            this.assignSessionLocalStreamHandlers();
+
+            this.initSession();
+            
+          });
+        },
+        () => console.log("Could not initialize")
+      );
+    
+    } else {
+      alert("Aready joined the event ");
+    }
+
+    // Sets the audio profile with a 48-kHz sampling rate, stereo sound, and 192-Kbps bitrate.
+    // this.localStream.setAudioProfile("high_quality_stereo");
+    // this.client.enableAudioVolumeIndicator();
+  }
+
+
+  private assignSessionLocalStreamHandlers(): void {
+    // The user has granted access to the camera and mic.
+    this.sessionLocalStream.on(StreamEvent.MediaAccessAllowed, () => {
+      console.log("accessAllowed");
+    });
+    // The user has denied access to the camera and mic.
+    this.localStream.on(StreamEvent.MediaAccessDenied, () => {
+      console.log("accessDenied");
+    });
+  }
+  
+
+  removeRemoteSessionStream = (stream) => {
+    const removeClientStreamId = `${this.getSessionRemoteId(stream)}`;
+    this.remoteSessionCalls = this.remoteSessionCalls.filter(
+      (call) => call.divId !== removeClientStreamId
+    );
+  }
+
+  protected initSession(): void {
+    this.sessionLocalStream.init(
+      () => {
+        // The user has granted access to the camera and mic.
+        console.log("getUserMedia successfully");
+
+        if(this.userRole=='host'){
+          this.publishSession();
+        }
+
+        if (
+          this.userDetails.user_details.user_type != "audience" &&
+          this.userDetails.user_details.user_type != "attendee"
+        ) {
+          this.isSessionClient = true;
+          this.sessionLocalStream.play("agora_remote-session-" + this.uid);
+        }
+        this.connected = true;
+      },
+      (err) => console.log("getUserMedia failed", err)
+    );
+  }
+
+  private getSessionRemoteId(stream: Stream): string {
+    console.log(stream.getId());
+    return `agora_remote-session${stream.getId()}`;
+  }
+
+  publishSession(): void {
+    this.sessionClient.publish(this.localStream, (err) =>
+      console.log("Publish session local stream error: " + err)
+    );
+  }
+
+  private assignSessionClientHandlers(): void {
+
+    console.log("hlwassignclient")
+    console.log(ClientEvent)
+    this.sessionClient.on(ClientEvent.LocalStreamPublished, (evt) => {
+      this.published = true;
+      console.log("Publish local session stream successfully");
+    });
+
+    this.sessionClient.on(ClientEvent.Error, (error) => {
+      console.log("Got error msg:", error.reason);
+      if (error.reason === "DYNAMIC_KEY_TIMEOUT") {
+        this.sessionClient.renewChannelKey(
+          "",
+          () => console.log("Renewed the channel key successfully."),
+          (renewError) =>
+            console.error("Renew channel key failed: ", renewError)
+        );
+      }
+    });
+
+    this.sessionClient.on(ClientEvent.RemoteStreamAdded, (evt) => {
+      console.log("hlwsessionsubscribe")
+      const stream = evt.stream as Stream;
+      this.sessionClient.subscribe(stream, { audio: true, video: true }, (err) => {
+        console.log("Subscribe stream failed", err);
+      });
+    });
+
+    this.sessionClient.on(ClientEvent.RemoteStreamSubscribed, (evt) => {
+      console.log("session stream subscribed")
+      const stream = evt.stream as Stream;
+      const id = this.getSessionRemoteId(stream);
+
+      this.totalUsersList.push(id);
+      // const selectedObj = true;
+      console.log("hlwsessioncurrentuser")
+      console.log(this.totalUsersList);
+      console.log(this.panellistUsersList)
+      
+      console.log(stream.getId())
+      console.log(
+        this.panellistUsersList.filter((res) => res.id == stream.getId())
+      );
+      const selectedObj = this.panellistUsersList.filter(
+        (res) => res.id == stream.getId()
+      )[0];
+      //if (selectedObj) {
+        console.log("hlwselectedobj")
+        console.log(stream)
+        console.log(selectedObj)
+        // this.remoteCalls.push({ divId: id, userName: "full name ", designation: 'developer' });
+        //if((typeof this.screenStream== 'undefined') || (stream.getId()!=this.screenStream.getId())){
+          this.remoteSessionCalls.push({
+            divId: id,
+            // userName: selectedObj.full_name,
+            // designation: selectedObj.designation,
+            userName: "",
+            designation: "",
+            stream: stream,
+            remoteAudioMuted: false,
+            remoteVideoMuted: false,
+          });
+        //}
+
+        setTimeout(() => stream.play(id), 1000);
+
+        this.pauseResumeSessionRemoteStreams()
+
+      //}
+    });
+
+    this.sessionClient.on(ClientEvent.RemoteStreamRemoved, (evt) => {
+      const stream = evt.stream as Stream;
+      if (stream) {
+        stream.stop();
+        stream.close();
+        this.removeRemoteSessionStream(stream);
+        //this.remoteCalls = [];
+        console.log(`Remote stream is removed ${stream.getId()}`);
+      }
+    });
+
+    this.sessionClient.on(ClientEvent.PeerLeave, (evt) => {
+      const stream = evt.stream as Stream;
+      if (stream) {
+        console.log(this.remoteSessionCalls)
+        console.log(stream['params'].streamID)
+        //this.destroy();
+        stream.stop();
+        stream.close();
+        
+        this.removeRemoteSessionStream(stream);
+
+        const removeClientStreamId = `${this.getSessionRemoteId(stream)}`;
+        
+        this.totalUsersList = this.totalUsersList.filter(
+          (call) => call !== removeClientStreamId
+        );
+        console.log(`${evt.uid} left from this channel localclient`);
+        console.log(`${this.getSessionRemoteId(stream)}`)
+        console.log("this.remoteSessionCalls")
+        console.log(this.remoteSessionCalls)
+      }
+    });
+  }
+
+  muteRemoteSessionAudio(stream_id){
+    this.sendChannelMessage('yesmuteRemoteSessionAudio@'+this.remoteSessionCalls[stream_id].stream.getId());
+    this.remoteAudioMuted = true;
+  }
+
+  unRemoteMuteSessionAudio(stream_id) {
+    this.sendChannelMessage('unMuteRemoteSessionAudio@'+this.remoteSessionCalls[stream_id].stream.getId())
+    this.remoteAudioMuted = false;
+  }
+
+  muteRemoteSessionVideo(stream_id) {
+    this.sendChannelMessage('yesmuteRemoteSessionVideo@'+this.remoteSessionCalls[stream_id].stream.getId());
+    this.remoteVideoMuted = true;
+  }
+
+  unMuteRemoteSessionVideo(stream_id) {
+    this.sendChannelMessage('unMuteRemoteSessionVideo@'+this.remoteSessionCalls[stream_id].stream.getId())
+    this.remoteVideoMuted = false;
+  }
+
+  pauseResumeSessionRemoteStreams(){
+    //Handle session streams
+    if(localStorage.getItem("muteRemoteSessionVideo")!=null && JSON.parse(localStorage.getItem("muteRemoteSessionVideo")).length > 0){
+      this.pauseRemoteSessionVideoStream();
+    }
+
+    if(localStorage.getItem("unMuteRemoteSessionVideo")!=null && JSON.parse(localStorage.getItem("unMuteRemoteSessionVideo")).length > 0){
+      this.resumeRemoteSessionVideoStream();
+    }
+
+    if(localStorage.getItem("muteRemoteSessionAudio")!=null && JSON.parse(localStorage.getItem("muteRemoteSessionAudio")).length > 0){
+      this.pauseRemoteSessionAudioStream();
+    }
+
+    if(localStorage.getItem("unMuteRemoteSessionAudio")!=null && JSON.parse(localStorage.getItem("unMuteRemoteSessionAudio")).length > 0){
+      this.resumeRemoteSessionAudioStream();
+    }
+  }
+
+  handleRemoteSessionsMuteUnmute(message) {
+    if(message.includes('yesmuteRemoteSessionVideo')){ //Mute Remote Video
+
+      const stream_id = parseInt(message.split("@")[1]);
+      let muteVideos = (localStorage.getItem("muteRemoteSessionVideo") != null) ? JSON.parse(localStorage.getItem("muteRemoteSessionVideo")) : []
+
+      if(localStorage.getItem("unMuteRemoteSessionVideo")!=null){
+        //Remove the unmuted stream from mute array
+        let unmuteVideos = JSON.parse(localStorage.getItem("unMuteRemoteSessionVideo"));
+        if (unmuteVideos.indexOf(stream_id) > -1) {
+          unmuteVideos.splice(unmuteVideos.indexOf(stream_id), 1);
+          localStorage.setItem("unMuteRemoteSessionVideo", JSON.stringify(unmuteVideos));
+        } 
+      }
+      
+      (muteVideos.indexOf(stream_id) == -1) ? muteVideos.push(stream_id) : null;
+      localStorage.setItem("muteRemoteSessionVideo", JSON.stringify(muteVideos));
+      this.pauseRemoteSessionVideoStream();
+    }
+
+    if(message.includes('unMuteRemoteSessionVideo')){ // //UnMute Remote Video
+
+      const stream_id = parseInt(message.split("@")[1]);      
+      let unMuteVideos = (localStorage.getItem("unMuteRemoteSessionVideo") != null) ? JSON.parse(localStorage.getItem("unMuteRemoteSessionVideo")) : []
+
+      if(localStorage.getItem("muteRemoteVideo")!=null){
+        //Remove the unmuted stream from mute array
+        let muteVideos = JSON.parse(localStorage.getItem("muteRemoteVideo"));
+        if (muteVideos.indexOf(stream_id) > -1) {
+          muteVideos.splice(muteVideos.indexOf(stream_id), 1);
+          localStorage.setItem("muteRemoteSessionVideo", JSON.stringify(muteVideos));
+        } 
+      }
+      (unMuteVideos.indexOf(stream_id) == -1) ? unMuteVideos.push(stream_id) : null;
+      localStorage.setItem("unMuteRemoteSessionVideo", JSON.stringify(unMuteVideos));
+      this.resumeRemoteSessionVideoStream();
+    }
+
+    //if(localStorage.getItem("muteAll") == null || localStorage.getItem("muteAll") == "no"){
+      if(message.includes('yesmuteRemoteSessionAudio')){ //Mute Remote Audio
+
+        // if(localStorage.getItem("muteAll") == "no"){
+        //   localStorage.removeItem("muteAll");
+        // }
+        
+        const stream_id = parseInt(message.split("@")[1]);
+
+        let muteAudios = (localStorage.getItem("muteRemoteSessionAudio") != null) ? JSON.parse(localStorage.getItem("muteRemoteSessionAudio")) : []
+
+        if(localStorage.getItem("unMuteRemoteSessionAudio")!=null){
+          //Remove the unmuted stream from mute array
+          let unmuteAudios = JSON.parse(localStorage.getItem("unMuteRemoteSessionAudio"));
+          if (unmuteAudios.indexOf(stream_id) > -1) {
+            unmuteAudios.splice(unmuteAudios.indexOf(stream_id), 1);
+            localStorage.setItem("unMuteRemoteSessionAudio", JSON.stringify(unmuteAudios));
+          } 
+        }
+
+        (muteAudios.indexOf(stream_id) == -1) ? muteAudios.push(stream_id) : null;
+        localStorage.setItem("muteRemoteSessionAudio", JSON.stringify(muteAudios));
+        this.pauseRemoteSessionAudioStream();
+      }
+    //}
+      
+    if(message.includes('unMuteRemoteSessionAudio')){ // //UnMute Remote Audio
+
+      const stream_id = parseInt(message.split("@")[1]);
+      let unMuteAudios = (localStorage.getItem("unMuteRemoteSessionAudio") != null) ? JSON.parse(localStorage.getItem("unMuteRemoteSessionAudio")) : []
+
+      if(localStorage.getItem("muteRemoteSessionAudio")!=null){
+        let muteAudios = JSON.parse(localStorage.getItem("muteRemoteSessionAudio"));
+        if (muteAudios.indexOf(stream_id) > -1) {
+          muteAudios.splice(muteAudios.indexOf(stream_id), 1);
+          localStorage.setItem("muteRemoteSessionAudio", JSON.stringify(muteAudios));
+        }
+      }
+      
+      (unMuteAudios.indexOf(stream_id) == -1) ? unMuteAudios.push(stream_id) : null;
+      localStorage.setItem("unMuteRemoteSessionAudio", JSON.stringify(unMuteAudios));
+      this.resumeRemoteSessionAudioStream();
+    }
+  }
+
+  pauseRemoteSessionVideoStream(){
+    console.log("pauseremotesessionvideo")
+    const remoteStreams = this.remoteSessionCalls;
+    for(let i = 0; i<remoteStreams.length; i++){
+      remoteStreams[i].remoteVideoMuted = false
+      if(remoteStreams[i].stream!='' && JSON.parse(localStorage.getItem("muteRemoteSessionVideo")).indexOf(parseInt(remoteStreams[i].stream.getId().split('_session')[0])) > -1 ){
+        console.log("pausesessionvideostream"+remoteStreams[i].stream.getId())
+        remoteStreams[i].stream.muteVideo();
+        remoteStreams[i].remoteVideoMuted = true
+      }
+    }
+    this.remoteSessionCalls = remoteStreams;
+    console.log(this.remoteSessionCalls)
+  }
+  
+  resumeRemoteSessionVideoStream(){
+    console.log("resumeremotesessionvideo")
+    const remoteStreams = this.remoteSessionCalls;
+    for(let i = 0; i<remoteStreams.length; i++){
+      remoteStreams[i].remoteVideoMuted = true
+      if(remoteStreams[i].stream!='' && JSON.parse(localStorage.getItem("unMuteRemoteSessionVideo")).indexOf(parseInt(remoteStreams[i].stream.getId().split('_session')[0])) > -1 ){
+        console.log("resumesessionvideostream"+remoteStreams[i].stream.getId())
+        remoteStreams[i].remoteVideoMuted = false
+        remoteStreams[i].stream.unmuteVideo();
+      }
+    }
+    this.remoteSessionCalls = remoteStreams
+  }
+
+  pauseRemoteSessionAudioStream(){
+    console.log("pauseremotesessionaudio")
+    const remoteStreams = this.remoteSessionCalls;
+    for(let i = 0; i<remoteStreams.length; i++){
+      remoteStreams[i].remoteAudioMuted = false
+      console.log(remoteStreams[i].stream.getId()+"@@")
+      if(remoteStreams[i].stream!='' && JSON.parse(localStorage.getItem("muteRemoteSessionAudio")).indexOf(parseInt(remoteStreams[i].stream.getId().split('_session')[0])) > -1 ){
+        console.log("pausesessionaudiostream"+remoteStreams[i].stream.getId())
+        remoteStreams[i].remoteAudioMuted = true
+        remoteStreams[i].stream.muteAudio();
+      }
+    }
+    this.remoteSessionCalls = remoteStreams
+    console.log(this.remoteSessionCalls)
+  }
+  
+  resumeRemoteSessionAudioStream(){
+    console.log("resumesessionremoteaudio")
+    const remoteStreams = this.remoteSessionCalls;
+    for(let i = 0; i<remoteStreams.length; i++){
+      remoteStreams[i].remoteAudioMuted = true
+      if(remoteStreams[i].stream!='' && JSON.parse(localStorage.getItem("unMuteRemoteSessionAudio")).indexOf(parseInt(remoteStreams[i].stream.getId().split('_session')[0])) > -1 ){
+        console.log("resumesessionaudiostream"+remoteStreams[i].stream.getId())
+        remoteStreams[i].remoteAudioMuted = false
+        remoteStreams[i].stream.unmuteAudio();
+      }
+    }
+    this.remoteSessionCalls = remoteStreams
   }
 
   openFullscreen() {
