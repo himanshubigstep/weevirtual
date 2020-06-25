@@ -1,25 +1,32 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed, async } from '@angular/core/testing';
 
 import { MeetingHallDailogComponent } from './meeting-hall-dailog.component';
 
 describe('MeetingHallDailogComponent', () => {
-  let component: MeetingHallDailogComponent;
-  let fixture: ComponentFixture<MeetingHallDailogComponent>;
-
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ MeetingHallDailogComponent ]
-    })
-    .compileComponents();
+      declarations: [
+        MeetingHallDailogComponent
+      ],
+    }).compileComponents();
   }));
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(MeetingHallDailogComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+  it('should create the app', () => {
+    const fixture = TestBed.createComponent(MeetingHallDailogComponent);
+    const app = fixture.debugElement.componentInstance;
+    expect(app).toBeTruthy();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it(`should have as title 'dnd'`, () => {
+    const fixture = TestBed.createComponent(MeetingHallDailogComponent);
+    const app = fixture.debugElement.componentInstance;
+    expect(app.title).toEqual('dnd');
+  });
+
+  it('should render title', () => {
+    const fixture = TestBed.createComponent(MeetingHallDailogComponent);
+    fixture.detectChanges();
+    const compiled = fixture.debugElement.nativeElement;
+    expect(compiled.querySelector('.content span').textContent).toContain('dnd app is running!');
   });
 });

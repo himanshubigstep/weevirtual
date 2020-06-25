@@ -4,6 +4,7 @@ import { HomeComponent } from './home.component';
 import { AuthGuard } from '../guards/auth.guard';
 import { LoungeComponent } from './lounge/lounge.component';
 import { MeetingHallComponent } from './meeting-hall/meeting-hall.component';
+import { SessionRoomComponent } from './meeting-hall/session-room/session-room.component';
 import { SpeakersPopoverComponent } from './speakers-popover/speakers-popover.component';
 import { ScheduleComponent } from './schedule/schedule.component';
 import { SponsorsComponent } from '../sponsors/sponsors.component';
@@ -16,6 +17,7 @@ const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'lounge', component: LoungeComponent },
   { path: 'meeting-hall', component: MeetingHallComponent },
+  { path: 'session-room', component: SessionRoomComponent},
   { path: 'mobile-chat', component: MobileChatComponent},
   { path: 'speakers', component: SpeakersPopoverComponent },
   { path: 'schedule', component: ScheduleComponent },

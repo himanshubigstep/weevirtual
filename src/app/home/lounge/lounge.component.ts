@@ -1,4 +1,6 @@
 import { Component, OnInit, ElementRef, ViewChild, Renderer2,OnDestroy } from '@angular/core';
+import * as AgoraRTM from "agora-rtm-sdk";
+import EventEmitter from "event-emitter";
 import { EventService } from '../../shared/services/event.service';
 import { Router } from '@angular/router';
 
@@ -24,6 +26,8 @@ export class LoungeComponent implements OnInit {
   isMenuOpen = false;
   enableVideoStreaming = false;
   enableVideoJoiningButton = false;
+  enableSpeakerLounge = false;
+  enableJoinnow = false;
   eventAllDetails;
   event_details;
   sponsors_details;
@@ -56,6 +60,17 @@ export class LoungeComponent implements OnInit {
     'Dec'
   ];
   dates = [];
+
+  private rtmClient;
+  private rtmChannel;
+  private channelEmitter;
+  public userDetails: any;
+  uid: number;
+  /**
+   * App ID used when connecting to the Agora.io servers
+   */
+  appId = "bc77dbe489d5466bb0084e0ff147ab9f";
+
   constructor(
     private eventService: EventService,
     private router: Router,
@@ -77,6 +92,21 @@ export class LoungeComponent implements OnInit {
          // customize default values of popovers used by this component tree
     config.placement = 'right';
     //config.triggers = 'hover';
+
+    this.rtmClient  = AgoraRTM.createInstance(this.appId);  
+    this.rtmChannel = this.rtmClient.createChannel("RTMChannel");
+
+    this.channelEmitter = new EventEmitter();
+
+    this.assignRtmHandlers();
+    this.assignRtmChannelEmitterHandlers();
+
+    this.userDetails = this.eventService.getEventDetails();
+
+    this.uid = this.userDetails.user_details.id; //Math.floor(Math.random() * 100);
+
+    this.joinRTMChannel();
+
    }
 
   ngOnInit(): void {
@@ -127,6 +157,129 @@ export class LoungeComponent implements OnInit {
       { name: 'description', content: 'Welcome to Session On Technology and Innovation for Sustainability. Leaders of Tomorrow - Season 8, the most comprehensive enabling platform for small businesses.' }
     ]);
 
+    if(localStorage.getItem("enableJoinNow") == "yes"){
+      console.log("switchonjoinnowbtn")
+      this.enableVideoJoiningButton= true;
+      this.enableVideoStreaming = true;
+      this.enableJoinnow = true;
+    }
+
+    if(localStorage.getItem("enableSpeakerLounge") == "yes"){
+      this.enableSpeakerLounge = true;
+      this.enableVideoJoiningButton = true;
+    }
+
+  }
+
+
+
+  joinRTMChannel(){
+    const loginUid = new Date().valueOf();
+    this.rtmClient.login({ token: null, uid: loginUid.toString() } ).then(() => {
+      this.rtmChannel.join().then(() => {
+        console.log('Channel join');
+        this.channelEmitter.emit('joinedChannel');
+      }).catch(err => {
+        console.log('Channel join failure', err);
+      });
+    })
+  }
+
+  private assignRtmHandlers(): void{
+
+    // CHECK STATE OF CONNECTION
+    this.rtmClient.on('ConnectionStateChanged', (newState, reason) => {
+      console.log('on connection state changed to ' + newState + ' reason: ' + reason);
+      if( newState == 'DISCONNECTED' ) {
+        console.log("disconnected")
+      }
+    });
+
+    // EVENT OF RECEVING PEER MESSAGE
+    this.rtmClient.on('MessageFromPeer', ({ text }, peerId) => { 
+      /* Your code for handling the event of receiving a peer-to-peer message. */
+        console.log("message from peer working " + peerId);
+    });
+
+    // MEMBER JOINED
+    this.rtmChannel.on('MemberJoined', memberId => {
+      console.log("[RTM-DEMO] MemberJoin", memberId);
+      this.joinRTMChannel();
+    });
+
+    // MEMBER LEAVED
+    this.rtmChannel.on('MemberLeft', memberId => {
+      console.log('[RTM-DEMO] MemberLeft', memberId)
+    });
+
+    // CHANNEL MESSAGE
+    this.rtmChannel.on('ChannelMessage', ({ text: message }, senderId) => {
+      console.log('ChannelMessage :', message , senderId);
+      this.channelEmitter.emit(`${message}`, message);
+    });
+
+  }
+
+  private assignRtmChannelEmitterHandlers():void{
+
+      console.log("hlwrtm");
+        
+      this.channelEmitter.on('joinedChannel', () => {
+        console.log("Channel emitter work fine");
+      });
+
+      this.channelEmitter.on(`speaker-lounge-on`, function ( {content}) {
+       
+        // ALLOW SPEAKER LOUNGE TO JOIN CALL
+        console.log("speakerloungeon");
+        this.enableSpeakerLounge= true;
+        location.reload();
+        localStorage.setItem("enableSpeakerLounge", "yes");
+      });
+
+      this.channelEmitter.on(`speaker-lounge-off`, function ( {content}) {        
+        // DISALLOW SPEAKER LOUNGE TO JOIN CALL
+        console.log("speakerloungeoff");
+        this.enableSpeakerLounge= false;
+        location.reload();
+        localStorage.setItem("enableSpeakerLounge", "no");
+      });
+
+      this.channelEmitter.on(`join-now-on`, function ( {content}) {
+       
+        // ALLOW JOIN NOW TO JOIN CALL
+        console.log("joinnowon");
+        this.enableVideoJoiningButton= true;
+        this.enableVideoStreaming = true;
+        this.enableJoinnow = true;
+        location.reload();
+        localStorage.setItem("enableJoinNow", "yes");
+
+      });
+
+      this.channelEmitter.on(`join-now-off`, function ( {content}) {
+        
+        // DISALLOW JOIN NOW TO JOIN CALL
+        console.log("joinnowoff");
+        this.enableVideoJoiningButton= false;
+        this.enableVideoStreaming = false;
+        this.enableJoinnow = false;
+        location.reload();
+        localStorage.setItem("enableJoinNow", "no");
+        
+      });
+
+      this.channelEmitter.on(`join-session-room-on`, function ( {content}) {
+       
+        // ALLOW SESSION ROOM TO JOIN CALL
+        console.log("joinsessionroomon");
+      });
+
+      this.channelEmitter.on(`join-session-room-off`, function ( {content}) {
+        
+        // DISALLOW SESSION ROOM TO JOIN CALL
+        console.log("joinsessionroomoff");
+      });
   }
 
 
@@ -145,7 +298,13 @@ export class LoungeComponent implements OnInit {
     });
     this.clickActive = true;
   }
-  navigateToMeetinHall() {
+
+  navigateToSessionRoom(){
+    localStorage.setItem("userRole", "audience");
+    this.router.navigate(["/home/session-room"]);
+  }
+
+  navigateToMeetingHall() {
     clearInterval(this.getVideoStatusCheckTimer);
     this.router.navigate(['/home/meeting-hall']);
   }

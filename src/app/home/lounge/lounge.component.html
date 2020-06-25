@@ -213,16 +213,13 @@
                                     </ng-container>
                                     <ng-container *ngIf="enableVideoJoiningButton">
 
-                                        <a routerLink='/speaker-room'>
-                                            <button class="btn joinNow mr-2"><i class="fa fa-user-plus"></i>
-                                                Speaker Lounge
-                                            </button>
-                                        </a>
-
-                                        <button class="btn joinNow" (click)="navigateToMeetinHall()"
-                                            [disabled]="!enableVideoStreaming"><i class="fa fa-user-plus"></i>
+                                        <button class="btn joinNow mr-2" (click)="navigateToMeetingHall()" [disabled]="!enableSpeakerLounge"><i class="fa fa-user-plus"></i>
+                                            Speaker Lounge
+                                        </button>
+                                        <button class="btn joinNow" (click)="navigateToSessionRoom()" 
+                                            [disabled]="!enableJoinnow"><i class="fa fa-user-plus"></i>
                                             Join Now</button>
-                                        <p [hidden]="enableVideoStreaming" class="begin-text">The event will begin in
+                                        <p [hidden]="enableJoinnow" class="begin-text">The event will begin in
                                             sometime..</p>
                                     </ng-container>
                                 </div>
