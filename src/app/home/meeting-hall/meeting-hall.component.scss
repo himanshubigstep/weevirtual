@@ -890,3 +890,12 @@ button#dropdownConfig {
   border: none;
   outline: none;
 }
+
+.screen-sharing{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  font-size: 100%;
+  font-weight: bold;
+}

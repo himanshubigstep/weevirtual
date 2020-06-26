@@ -90,8 +90,8 @@ export class MeetingHallComponent implements OnInit {
   /**
    * Channel (meeting room) within the Agora app to join
    */
-  channel = "speakerLounge";
-  sessionChannel = "sessionRoom";
+  channel = "speakerLounge123";
+  sessionChannel = "sessionRoom123";
   /**
    * Generated user ID that is attached to the local client when joining a meeting room
    */
@@ -284,7 +284,8 @@ export class MeetingHallComponent implements OnInit {
           designation: this.userDetails.user_details.designation,
           stream: '',
           remoteAudioMuted: false,
-          remoteVideoMuted: false
+          remoteVideoMuted: false,
+          isScreen: false
         });
       }
 
@@ -957,22 +958,28 @@ export class MeetingHallComponent implements OnInit {
       //if (selectedObj) {
         console.log("hlwselectedobj")
         console.log(stream)
+        console.log(stream)
         console.log(selectedObj)
+        let isScreen = true;
         // this.remoteCalls.push({ divId: id, userName: "full name ", designation: 'developer' });
         if((typeof this.screenStream== 'undefined') || (stream.getId()!=this.screenStream.getId())){
-          this.remoteCalls.push({
-            divId: id,
-            // userName: selectedObj.full_name,
-            // designation: selectedObj.designation,
-            userName: "",
-            designation: "",
-            stream: stream,
-            remoteAudioMuted: false,
-            remoteVideoMuted: false,
-          });
+          isScreen = false
         }
+        console.log(this.screenStream)
+        console.log("isScreen "+isScreen)
+        this.remoteCalls.push({
+          divId: id,
+          // userName: selectedObj.full_name,
+          // designation: selectedObj.designation,
+          userName: "",
+          designation: "",
+          stream: stream,
+          remoteAudioMuted: false,
+          remoteVideoMuted: false,
+          isScreen: isScreen
+        });
 
-        setTimeout(() => stream.play(id), 1000);
+        setTimeout(() => stream.play(id), 2000);
 
         this.pauseResumeRemoteStreams();
 
@@ -1090,7 +1097,8 @@ export class MeetingHallComponent implements OnInit {
       );
     
     } else {
-      alert("Aready joined the event ");
+      //alert("Aready joined the event ");
+      this.init();
     }
 
     // Sets the audio profile with a 48-kHz sampling rate, stereo sound, and 192-Kbps bitrate.
@@ -1510,7 +1518,7 @@ export class MeetingHallComponent implements OnInit {
 
     this.playSelfStream('session')
 
-    if (!this.connected) {
+    if (!this.sessionConnected) {
       
       this.sessionClient.init(
         this.appId,
@@ -1542,7 +1550,7 @@ export class MeetingHallComponent implements OnInit {
       );
     
     } else {
-      alert("Aready joined the event ");
+      this.initSession();
     }
 
     // Sets the audio profile with a 48-kHz sampling rate, stereo sound, and 192-Kbps bitrate.
@@ -1587,7 +1595,7 @@ export class MeetingHallComponent implements OnInit {
           this.isSessionClient = true;
           this.sessionLocalStream.play("agora_remote-session-" + this.uid);
         }
-        this.connected = true;
+        this.sessionConnected = true;
       },
       (err) => console.log("getUserMedia failed", err)
     );

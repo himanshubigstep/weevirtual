@@ -83,7 +83,10 @@
             <!-- <div [id]="screenShareDiv" style="width: 500px; height: 500px;"></div> -->
 
             <ng-container *ngFor="let remote of remoteCalls; let i = index">
-              <div class="mb-30" [ngClass]="{
+              <div class="mb-30 screen-sharing" *ngIf=" remote.isScreen " >
+                  Your are Presenting your screen ..
+              </div>
+              <div class="mb-30" *ngIf=" !remote.isScreen " [ngClass]="{
                   'col-md-12 single-video': remoteCalls.length == 1,
                   'col-md-6 two-video': remoteCalls.length == 2,
                   'col-md-5 three-video':
@@ -93,7 +96,7 @@
                   'col-md-3 five-video': remoteCalls.length >= 7
                 }">
 
-                <div class="remote-calls" [id]="remote.divId" >
+                <div class="remote-calls" [id]="remote.divId">
                   <div *ngIf="userType.type == 'admin' && remote.stream!='' " class="admin_mute_control">
                     <button *ngIf="!remote.remoteAudioMuted" class="btn btn-primary" (click)="muteRemoteAudio(i)">
                       <i class="material-icons">volume_off</i>
