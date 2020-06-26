@@ -108,6 +108,7 @@ export class MeetingHallComponent implements OnInit {
    * Whether the local client has tuned in to the Agora meeting room
    */
   connected = false;
+  sessionConnected = false;
   screenShareDivID: String;
   /**
    * Whether the local client's A/V stream has been published to the remote meeting room
