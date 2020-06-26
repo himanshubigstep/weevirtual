@@ -179,7 +179,7 @@
                     <i class="material-icons">fullscreen</i>
                   </button>
 
-                  <div ngbDropdown *ngIf="userType.type == 'admin'">
+                  <div ngbDropdown *ngIf="userType.type == 'admin'" class="recordbtn">
                     <div class="d-flex">
                         <button *ngIf='disabledIcon && disabledIcon2 '><img
                                 src="../../../assets/images/icons/video-recording.svg"
@@ -395,7 +395,8 @@
 
 
                   <div id="background" class="tabcontent" *ngIf="activeTab === 1">
-                      <img src="{{item}}" alt="" *ngFor="let item of mediaList.background_images">
+                    <div  *ngFor="let item of uploadImages" (click)="imagepreview()">{{item}}</div>
+                      <!-- <img src="{{item}}" alt="" *ngFor="let item of mediaList.background_images"> -->
                   </div>
                   <div id="presentation" class="tabcontent" *ngIf="activeTab === 2">
                     <iframe src="{{item}}" *ngFor="let item of mediaList.ppt_files"></iframe>
@@ -673,7 +674,7 @@
                   <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
 
                       <div class="d-flex justify-content-end align-items-center mr-4">
-                          <button class="btn btn-danger live my-2">
+                          <button class="btn btn-danger live my-2" (click)="downloadrecording()">
                               <img src="../../../assets/images/icons/download.svg" alt="" class="pr-2">
                               Download Recording</button>
                       </div>
