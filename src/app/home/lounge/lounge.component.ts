@@ -191,6 +191,7 @@ export class LoungeComponent implements OnInit {
     this.rtmClient.on('ConnectionStateChanged', (newState, reason) => {
       console.log('on connection state changed to ' + newState + ' reason: ' + reason);
       if( newState == 'DISCONNECTED' ) {
+        this.joinRTMChannel();
         console.log("disconnected")
       }
     });
