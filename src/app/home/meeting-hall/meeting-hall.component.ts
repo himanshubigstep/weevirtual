@@ -86,7 +86,7 @@ export class MeetingHallComponent implements OnInit {
   /**
    * App ID used when connecting to the Agora.io servers
    */
-  appId = environment.agoraAppId;
+  appId = "bc77dbe489d5466bb0084e0ff147ab9f";
   /**
    * Channel (meeting room) within the Agora app to join
    */
