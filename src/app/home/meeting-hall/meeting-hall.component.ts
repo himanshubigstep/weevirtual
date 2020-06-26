@@ -19,6 +19,8 @@ import EventEmitter from "event-emitter";
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 import {MatTabsModule} from '@angular/material/tabs';
 import { MeetingHallDailogComponent } from "src/app/home/meeting-hall/dailog/meeting-hall-dailog/meeting-hall-dailog.component";
+import { LiverecordingComponent } from "src/app/home/meeting-hall/dailog/liverecording/liverecording.component";
+import { ImagepreviewComponent } from "src/app/home/meeting-hall/dailog/imagepreview/imagepreview.component";
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { NgbDropdownConfig } from '@ng-bootstrap/ng-bootstrap';
 import { HttpService } from 'src/app/shared/services/http.service';
@@ -183,6 +185,7 @@ export class MeetingHallComponent implements OnInit {
   mediaList: any;
 
   isSessionClient = false;
+  uploadImages = []
 
   ngOnInit() {
     this.elem = document.documentElement;
@@ -192,6 +195,11 @@ export class MeetingHallComponent implements OnInit {
     ).subscribe(result => {
       this.mediaList = result;
       console.log(result);
+      for (let index = 0; index < this.mediaList.background_images.length; index++) {
+        let element:any = this.mediaList.background_images[index].split('/');
+        this.uploadImages.push(element[element.length-1]);
+        
+      }
       //this.animal = result;
     });
     
@@ -371,6 +379,30 @@ export class MeetingHallComponent implements OnInit {
   openDialog(): void {
     const dialogRef = this.dialog.open(MeetingHallDailogComponent, {
       width: '600px',
+       //data: {name: this.name, animal: this.animal}
+     });
+
+     dialogRef.afterClosed().subscribe(result => {
+       console.log('The dialog was closed');
+       //this.animal = result;
+     });
+  }
+
+  downloadrecording(): void {
+    const dialogRef = this.dialog.open(LiverecordingComponent, {
+      width: 'auto',
+       //data: {name: this.name, animal: this.animal}
+     });
+
+     dialogRef.afterClosed().subscribe(result => {
+       console.log('The dialog was closed');
+       //this.animal = result;
+     });
+  }
+
+  imagepreview(): void {
+    const dialogRef = this.dialog.open(ImagepreviewComponent, {
+      width: 'auto',
        //data: {name: this.name, animal: this.animal}
      });
 
@@ -691,8 +723,8 @@ export class MeetingHallComponent implements OnInit {
         console.log("joinsessionroomon");
 
         this.enableSessionStreaming = true;
-        location.reload();
         localStorage.setItem("enableSessionStreaming", "yes");
+        location.reload();
       });
 
       this.channelEmitter.on(`join-session-room-off`, function ( {content}) {
@@ -700,8 +732,8 @@ export class MeetingHallComponent implements OnInit {
         // DISALLOW SESSION ROOM TO JOIN CALL
         console.log("joinsessionroomoff");
         this.enableSessionStreaming = false;
-        location.reload();
         localStorage.setItem("enableSessionStreaming", "no");
+        location.reload();
         
       });
   }

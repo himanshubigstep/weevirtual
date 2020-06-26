@@ -233,16 +233,16 @@ export class LoungeComponent implements OnInit {
         // ALLOW SPEAKER LOUNGE TO JOIN CALL
         console.log("speakerloungeon");
         this.enableSpeakerLounge= true;
-        location.reload();
         localStorage.setItem("enableSpeakerLounge", "yes");
+        location.reload();
       });
 
       this.channelEmitter.on(`speaker-lounge-off`, function ( {content}) {        
         // DISALLOW SPEAKER LOUNGE TO JOIN CALL
         console.log("speakerloungeoff");
         this.enableSpeakerLounge= false;
-        location.reload();
         localStorage.setItem("enableSpeakerLounge", "no");
+        location.reload();
       });
 
       this.channelEmitter.on(`join-now-on`, function ( {content}) {
@@ -252,8 +252,8 @@ export class LoungeComponent implements OnInit {
         this.enableVideoJoiningButton= true;
         this.enableVideoStreaming = true;
         this.enableJoinnow = true;
-        location.reload();
         localStorage.setItem("enableJoinNow", "yes");
+        location.reload();
 
       });
 
@@ -264,8 +264,8 @@ export class LoungeComponent implements OnInit {
         this.enableVideoJoiningButton= false;
         this.enableVideoStreaming = false;
         this.enableJoinnow = false;
-        location.reload();
         localStorage.setItem("enableJoinNow", "no");
+        location.reload();
         
       });
 

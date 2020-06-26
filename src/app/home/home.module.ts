@@ -37,6 +37,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { CountdownModule } from 'ngx-countdown';
 import { ProgressComponent } from './meeting-hall/dailog/meeting-hall-dailog/progress/progress.component';
 import { DndDirective } from './meeting-hall/dailog/meeting-hall-dailog/directives/dnd.directive';
+import { ImagepreviewComponent } from './meeting-hall/dailog/imagepreview/imagepreview.component';
 
 
 const agoraConfig: AgoraConfig = {
@@ -63,7 +64,8 @@ const agoraConfig: AgoraConfig = {
     MeetingHallDailogComponent,
     SessionRoomComponent,
     DndDirective,
-    ProgressComponent
+    ProgressComponent,
+    ImagepreviewComponent
   ],
   imports: [
     CommonModule,
